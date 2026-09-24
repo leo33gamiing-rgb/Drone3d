@@ -8,6 +8,8 @@ numérique de surface.
 Le calcul est fait par [OpenDroneMap](https://opendronemap.org) (ODM), lancé
 automatiquement dans Docker. Tout reste sur votre PC.
 
+![Résultat réel : 25 photos de drone, modèle 3D texturé calculé en 29 min](docs/capture.png)
+
 ## Principe : plus de données = plus de précision
 
 L'application analyse les photos et choisit seule les réglages :

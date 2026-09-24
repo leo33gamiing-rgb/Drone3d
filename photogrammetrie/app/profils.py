@@ -53,7 +53,7 @@ _VOLUMES = [
         "standard", "Standard", 2, 10,
         [
             "--feature-quality", "ultra", "--min-num-features", "15000",
-            "--matcher-type", "bruteforce", "--pc-quality", "high",
+            "--pc-quality", "high",
             "--mesh-size", "200000", "--mesh-octree-depth", "11", "--use-3dmesh",
         ],
         0.6,
