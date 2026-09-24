@@ -67,6 +67,13 @@ photos d'origine sont rangées dans `donnees/a_traiter/_fait/`.
 
 **En une commande** : `lancer.bat traiter C:\chemin\vers\photos`.
 
+**Depuis le téléphone** : lancez **`lancer_reseau.bat`** (ou `lancer.bat --reseau`).
+La console affiche une adresse du type `http://192.168.1.20:8000` : ouvrez-la
+sur le téléphone connecté au même Wi-Fi, puis « Choisir des photos ». Windows
+peut demander d'autoriser Python dans le pare-feu (réseau privé uniquement).
+Sur iPhone, dans le sélecteur de photos, touchez « Options » et activez
+« Position » pour que le GPS soit envoyé avec les photos.
+
 ### Fichiers produits
 
 | Fichier | Contenu | S'ouvre avec |
@@ -92,7 +99,8 @@ photos d'origine sont rangées dans `donnees/a_traiter/_fait/`.
 - **Téléphone** : activez la localisation de l'appareil photo pour obtenir un
   modèle à l'échelle.
 - **Matrice 4T** : sa caméra n'a pas d'obturateur mécanique ; volez lentement.
-  La correction « rolling shutter » est activée automatiquement.
+  La correction « rolling shutter » est activée automatiquement (ODM utilise
+  une durée de lecture par défaut si le capteur n'est pas dans sa base).
 
 ### Points de contrôle (`gcp_list.txt`)
 

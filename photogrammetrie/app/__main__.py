@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import shutil
+import socket
 import sys
 import threading
 import webbrowser
@@ -26,6 +27,16 @@ def creer_moteur(config):
     return MoteurODM(config)
 
 
+def adresse_locale() -> str:
+    """Adresse IP du PC sur le réseau local (aucun paquet n'est réellement envoyé)."""
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        try:
+            s.connect(("192.168.0.1", 80))
+            return s.getsockname()[0]
+        except OSError:
+            return "adresse-du-pc"
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):  # accents dans la console Windows
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -36,6 +47,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sans-web", action="store_true", help="surveillance du dossier sans interface web")
     parser.add_argument("--port", type=int, help="port de l'interface web (8000 par défaut)")
     parser.add_argument("--donnees", type=Path, help="dossier des données (a_traiter, resultats...)")
+    parser.add_argument("--reseau", action="store_true",
+                        help="accessible depuis les téléphones du même Wi-Fi (envoi direct des photos)")
     parser.add_argument("--simulation", action="store_true", help="mode démonstration sans calcul réel")
     parser.add_argument("--pas-de-navigateur", action="store_true", help="ne pas ouvrir le navigateur")
     args = parser.parse_args(argv)
@@ -47,6 +60,8 @@ def main(argv: list[str] | None = None) -> int:
         config.dossier_donnees = args.donnees.resolve()
     if args.simulation:
         config.simulation = True
+    if args.reseau:
+        config.hote = "0.0.0.0"
 
     if not config.simulation:
         ok, message = docker_disponible()
@@ -89,9 +104,11 @@ def main(argv: list[str] | None = None) -> int:
 
     url = f"http://localhost:{config.port}"
     print(f"Interface web : {url}")
+    if config.hote != "127.0.0.1":
+        print(f"Depuis un téléphone du même Wi-Fi : http://{adresse_locale()}:{config.port}")
     if not args.pas_de_navigateur:
         threading.Timer(1.5, lambda: webbrowser.open(url)).start()
-    uvicorn.run(creer_app(gestionnaire), host="127.0.0.1", port=config.port, log_level="warning")
+    uvicorn.run(creer_app(gestionnaire), host=config.hote, port=config.port, log_level="warning")
     return 0
 
 

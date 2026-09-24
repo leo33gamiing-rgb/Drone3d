@@ -28,6 +28,18 @@ ETAPES = {
     "odm_postprocess": (98, "Finalisation"),
 }
 _RE_ETAPE = re.compile(r"Running (\w+) stage")
+# Sous-étapes des phases longues, pour que la barre de progression avance
+SOUS_ETAPES = {
+    "detect_features": (7, "Détection des points remarquables"),
+    "match_features": (15, "Recherche des points communs entre photos"),
+    "create_tracks": (28, "Assemblage des correspondances"),
+    "reconstruct": (31, "Calcul de la position des photos"),
+    "export_geocoords": (43, "Export de l'alignement"),
+    "DensifyPointCloud": (47, "Nuage de points dense"),
+    "ReconstructMesh": (72, "Création du maillage 3D"),
+    "texrecon": (79, "Application des textures"),
+}
+_RE_SOUS_ETAPE = re.compile(r'running ".*?(?:opensfm" (\w+)|/(DensifyPointCloud|ReconstructMesh|texrecon)")')
 _RE_COULEURS = re.compile(r"\x1b\[[0-9;]*m")
 
 # Fichiers produits par ODM -> nom lisible dans le dossier de résultats
@@ -97,6 +109,7 @@ class MoteurODM:
         )
         self._processus[projet] = proc
         derniere_etape = ""
+        pct_actuel = 0
         try:
             assert proc.stdout is not None
             for ligne in proc.stdout:
@@ -105,8 +118,14 @@ class MoteurODM:
                 m = _RE_ETAPE.search(ligne)
                 if m and m.group(1) in ETAPES and m.group(1) != derniere_etape:
                     derniere_etape = m.group(1)
-                    pct, libelle = ETAPES[derniere_etape]
-                    progression(pct, libelle)
+                    pct_actuel, libelle = ETAPES[derniere_etape]
+                    progression(pct_actuel, libelle)
+                    continue
+                m = _RE_SOUS_ETAPE.search(ligne)
+                sous_etape = m and (m.group(1) or m.group(2))
+                if sous_etape in SOUS_ETAPES and SOUS_ETAPES[sous_etape][0] > pct_actuel:
+                    pct_actuel = SOUS_ETAPES[sous_etape][0]
+                    progression(*SOUS_ETAPES[sous_etape])
             code = proc.wait()
         finally:
             self._processus.pop(projet, None)

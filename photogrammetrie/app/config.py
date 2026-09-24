@@ -24,6 +24,8 @@ class Config:
     # Mode démonstration : aucun calcul réel, sert à tester l'interface sans Docker
     simulation: bool = False
     port: int = 8000
+    # "0.0.0.0" rend l'interface accessible aux téléphones du même Wi-Fi (option --reseau)
+    hote: str = "127.0.0.1"
     # Secondes sans changement avant de considérer qu'un dossier déposé est complet
     delai_stabilite: int = 20
     intervalle_surveillance: int = 5

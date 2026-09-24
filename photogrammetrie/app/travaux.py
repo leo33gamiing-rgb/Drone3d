@@ -99,9 +99,12 @@ class GestionnaireTravaux:
         travail = self._travaux.get(id_)
         if not travail or travail.statut not in (EN_ATTENTE, EN_COURS):
             return False
-        if travail.statut == EN_COURS:
-            self.moteur.annuler(id_)
+        en_attente = travail.statut == EN_ATTENTE
         travail.statut, travail.etape = ANNULE, "Annulé"
+        if en_attente:
+            self._ranger_entree(self.dossier_photos(id_), "_erreur")
+        else:
+            self.moteur.annuler(id_)
         self._enregistrer(travail)
         return True
 
