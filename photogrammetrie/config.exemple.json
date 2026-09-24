@@ -1,0 +1,9 @@
+{
+  "dossier_donnees": "donnees",
+  "image_odm": "opendronemap/odm",
+  "gpu": false,
+  "port": 8000,
+  "delai_stabilite": 20,
+  "garder_travail": false,
+  "options_supplementaires": []
+}

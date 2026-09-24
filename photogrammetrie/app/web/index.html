@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photos vers 3D</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/static/vendor/three.module.js",
+        "three/addons/": "/static/vendor/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="entete">
+    <div>
+      <h1>Photos → Modèle 3D</h1>
+      <p class="sous-titre">Photogrammétrie locale avec OpenDroneMap : drone, téléphone ou appareil photo</p>
+    </div>
+    <span id="etat-moteur" class="pastille">Connexion…</span>
+  </header>
+
+  <main class="grille">
+    <section class="colonne-gauche">
+      <div class="carte">
+        <h2>Nouveau calcul</h2>
+        <label class="champ">
+          <span>Nom du projet</span>
+          <input id="nom-projet" type="text" placeholder="ex. Toiture mairie" maxlength="60">
+        </label>
+        <div id="zone-depot" class="zone-depot" tabindex="0">
+          <strong>Glissez vos photos ou un dossier ici</strong>
+          <span>JPG, PNG, TIFF, HEIC · 3 photos minimum</span>
+          <span class="petit">Ajoutez <code>gcp_list.txt</code> (points de contrôle) pour une précision centimétrique</span>
+          <div class="boutons">
+            <button type="button" class="secondaire" id="choisir-photos">Choisir des photos</button>
+            <button type="button" class="secondaire" id="choisir-dossier">Choisir un dossier</button>
+          </div>
+          <input id="entree-photos" type="file" multiple accept=".jpg,.jpeg,.png,.tif,.tiff,.heic,.heif,.txt" hidden>
+          <input id="entree-dossier" type="file" webkitdirectory multiple hidden>
+        </div>
+        <div id="selection" class="selection" hidden>
+          <span id="selection-texte"></span>
+          <button type="button" class="lien" id="vider-selection">Vider</button>
+        </div>
+        <div id="envoi" class="barre" hidden><div></div></div>
+        <button type="button" id="lancer" class="principal" disabled>Lancer le calcul</button>
+        <p class="petit astuce">Ou déposez un dossier de photos dans<br><code id="dossier-entree">…</code><br>: il sera traité automatiquement.</p>
+      </div>
+
+      <div class="carte">
+        <h2>Calculs</h2>
+        <ul id="liste-travaux" class="liste-travaux"></ul>
+        <p id="liste-vide" class="petit vide">Aucun calcul pour l'instant.</p>
+      </div>
+    </section>
+
+    <section class="colonne-droite">
+      <div id="aucun-detail" class="carte vide-detail">
+        <p>Sélectionnez un calcul ou déposez des photos pour commencer.</p>
+      </div>
+
+      <div id="detail" class="carte" hidden>
+        <div class="detail-entete">
+          <div>
+            <h2 id="d-nom"></h2>
+            <p class="petit" id="d-dates"></p>
+          </div>
+          <div class="boutons">
+            <button type="button" class="secondaire" id="d-annuler">Annuler</button>
+            <button type="button" class="danger" id="d-supprimer">Supprimer</button>
+          </div>
+        </div>
+
+        <div class="progression">
+          <div class="progression-texte"><span id="d-etape"></span><span id="d-pct"></span></div>
+          <div class="barre"><div id="d-barre"></div></div>
+        </div>
+        <div id="d-erreur" class="alerte erreur" hidden></div>
+
+        <div id="d-analyse" class="tuiles" hidden></div>
+
+        <div id="d-profil" class="profil" hidden>
+          <div class="profil-tete">
+            <div>
+              <span class="petit">Réglage automatique</span>
+              <strong id="p-libelle"></strong>
+            </div>
+            <div class="fiabilite">
+              <span class="petit">Indice de fiabilité</span>
+              <div class="jauge"><div id="p-jauge"></div></div>
+              <span id="p-fiabilite" class="petit"></span>
+            </div>
+          </div>
+          <p id="p-precision"></p>
+          <p class="petit" id="p-duree"></p>
+          <ul id="p-avertissements" class="alerte attention" hidden></ul>
+          <ul id="p-conseils" class="conseils" hidden></ul>
+        </div>
+
+        <div id="d-visu" class="visu" hidden>
+          <div class="visu-barre">
+            <strong>Modèle 3D</strong>
+            <div class="boutons">
+              <button type="button" class="secondaire" id="v-axe" title="Si le modèle apparaît couché">Redresser</button>
+              <button type="button" class="secondaire" id="v-recentrer">Recentrer</button>
+              <button type="button" class="secondaire" id="v-plein">Plein écran</button>
+            </div>
+          </div>
+          <div id="v-canvas" class="visu-canvas"><span id="v-chargement" class="petit">Chargement du modèle…</span></div>
+          <p class="petit">Clic gauche : tourner · Molette : zoomer · Clic droit : déplacer</p>
+        </div>
+
+        <div id="d-fichiers" hidden>
+          <h3>Fichiers</h3>
+          <ul id="liste-fichiers" class="fichiers"></ul>
+        </div>
+
+        <details id="d-journal">
+          <summary>Journal technique</summary>
+          <pre id="journal-texte"></pre>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
