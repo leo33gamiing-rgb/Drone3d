@@ -44,6 +44,17 @@ Une petite application qui tourne en local sur le PC, sans installation :
 | Annoncer le temps restant | Fait l'annonce vocale tout de suite. |
 | Couper tous les sons | Arrête net screamers, voix, récits et fond sonore. |
 
+## Micro : parler avec une voix déformée
+
+Carte **Micro — voix déformée** : clique sur **Activer le micro** une fois au début de la soirée, puis :
+
+- **maintiens le bouton violet** (ou **la barre Espace**) pour parler, relâche pour couper ;
+- ou coche **Rester en direct** : un clic allume, un clic coupe ;
+- choisis l'effet : **Démon** (très grave), **Monstre** (grave et grondant), **Possédé** (métallique), **Fantôme** (écho lointain), **Voix d'outre-tombe**, ou voix normale ;
+- la jauge montre que le micro t'entend ; le fond sonore baisse automatiquement pendant que tu parles ; « Micro en direct » apparaît dans *Sons en cours*.
+
+Ta voix sort par la barre de son, avec un petit retard (normal en Bluetooth). Pour éviter le **larsen** (sifflement), prends un casque-micro ou éloigne le micro de la barre de son et baisse le volume de la voix si besoin. Après cette mise à jour, relance une fois **`INSTALLER-ICONE.bat`** : l'icône autorisera alors le micro sans poser la question à chaque lancement.
+
 ## Sons en cours
 
 En bas à droite, le cadre **Sons en cours** est toujours visible, même quand tu fais défiler la page. Il liste tout ce qui joue : screamers, bruitages, récit, annonce vocale, ambiances et horloges en boucle, avec le temps écoulé. **■ Arrêter** coupe un son lancé par erreur ; **Tout couper** arrête tout.

@@ -154,6 +154,9 @@ function afficherEnCours() {
   if (window.speechSynthesis?.speaking) {
     lignes.push({ cle: 'voix', nom: 'Annonce vocale', detail: 'voix', arreter: () => speechSynthesis.cancel() });
   }
+  if (Micro.enDirect()) {
+    lignes.push({ cle: 'micro', nom: 'Micro en direct', detail: Micro.effets[Micro.effet()]?.nom ?? '', arreter: () => parler(false) });
+  }
   if (lectureActive) lignes.push({ cle: `lecture${lecture}`, nom: 'Lecture enchaînée', detail: 'récit', arreter: arreterLecture });
   for (const s of Sons.sonsEnCours()) {
     const son = sons.find(x => x.id === s.id);
@@ -408,6 +411,7 @@ function arreterLecture() {
 }
 
 function toutCouper() {
+  parler(false);
   lecture++;
   lectureActive = false;
   Sons.toutCouper();
@@ -418,6 +422,98 @@ function toutCouper() {
 function ouvrirEcran() {
   if (fenetreEcran && !fenetreEcran.closed) return fenetreEcran.focus();
   fenetreEcran = window.open('ecran.html', 'ecran-joueurs', 'popup,width=1280,height=720');
+}
+
+// ---------- Micro (voix déformée en direct) ----------
+
+const microVerrouille = () => $('#i-micro-verrou').checked;
+
+function parler(oui) {
+  if (!Micro.pret() || oui === Micro.enDirect()) return;
+  Micro.parler(oui);
+  Sons.attenuer(oui); // le fond sonore baisse pendant qu'on parle
+  const b = $('#b-parler');
+  b.classList.toggle('en-direct', oui);
+  b.textContent = oui ? '● EN DIRECT' + (microVerrouille() ? ' — cliquer pour couper' : ' — relâcher pour couper')
+    : microVerrouille() ? 'Cliquer pour parler' : 'Maintenir pour parler';
+}
+
+async function activerMicro() {
+  const bouton = $('#b-micro-activer');
+  bouton.disabled = true;
+  bouton.textContent = 'Activation…';
+  try {
+    await Micro.activer(reglages.micro);
+  } catch (erreur) {
+    bouton.disabled = false;
+    bouton.textContent = 'Activer le micro';
+    const raisons = {
+      NotAllowedError: "l'accès au micro a été refusé. Autorisez-le dans la fenêtre du navigateur (icône du micro dans la barre d'adresse).",
+      NotFoundError: "aucun micro n'est branché ou reconnu par Windows.",
+      OverconstrainedError: "le micro choisi n'est plus disponible.",
+    };
+    if (erreur?.name === 'OverconstrainedError' && reglages.micro) {
+      reglages.micro = '';
+      sauver();
+      return activerMicro();
+    }
+    return alert(`Impossible d'activer le micro : ${raisons[erreur?.name] ?? erreur?.message ?? erreur}`);
+  }
+  bouton.hidden = true;
+  $('#micro-commandes').hidden = false;
+  noter('Micro activé');
+  const micros = await Micro.appareils();
+  const choix = $('#s-micro');
+  choix.replaceChildren(new Option('Micro par défaut de Windows', ''),
+    ...micros.filter(m => m.deviceId && m.deviceId !== 'default').map(m => new Option(m.label || 'Micro', m.deviceId)));
+  choix.value = reglages.micro;
+  const jauge = $('#micro-niveau');
+  const mesurer = () => {
+    jauge.style.width = `${Math.round(Micro.niveau() * 100)}%`;
+    requestAnimationFrame(mesurer);
+  };
+  mesurer();
+}
+
+function brancherMicro() {
+  const effets = $('#s-effet-voix');
+  effets.replaceChildren(...Object.entries(Micro.effets).map(([cle, e]) => new Option(e.nom, cle)));
+  effets.value = reglages.effetVoix;
+  Micro.choisirEffet(reglages.effetVoix);
+  Micro.volume(reglages.volumeVoix);
+  $('#b-micro-activer').onclick = activerMicro;
+  $('#s-micro').onchange = async evenement => {
+    reglages.micro = evenement.target.value;
+    sauver();
+    const etaitEnDirect = Micro.enDirect();
+    parler(false);
+    await Micro.activer(reglages.micro).catch(erreur => alert(`Micro indisponible : ${erreur?.message ?? erreur}`));
+    if (etaitEnDirect) parler(true);
+  };
+  $('#i-micro-verrou').onchange = () => parler(false);
+
+  // Bouton : maintenu = en direct, relâché = coupé (ou un clic allume / un clic coupe si verrouillé).
+  const b = $('#b-parler');
+  b.onpointerdown = evenement => {
+    b.setPointerCapture(evenement.pointerId);
+    parler(microVerrouille() ? !Micro.enDirect() : true);
+  };
+  b.onpointerup = b.onpointercancel = () => {
+    if (!microVerrouille()) parler(false);
+  };
+
+  // Barre Espace maintenue = parler (sauf pendant la saisie d'un texte).
+  const saisie = cible => cible.closest?.('input, textarea, select');
+  document.addEventListener('keydown', evenement => {
+    if (evenement.code !== 'Space' || !Micro.pret() || saisie(evenement.target)) return;
+    evenement.preventDefault();
+    if (!evenement.repeat) parler(microVerrouille() ? !Micro.enDirect() : true);
+  });
+  document.addEventListener('keyup', evenement => {
+    if (evenement.code !== 'Space' || !Micro.pret() || saisie(evenement.target)) return;
+    evenement.preventDefault();
+    if (!microVerrouille()) parler(false);
+  });
 }
 
 // ---------- Fond sonore ----------
@@ -618,6 +714,8 @@ function lierReglages() {
 function reglagesModifies() {
   derniereAnnonce = null; // l'intervalle a pu changer : on se recale sans annoncer
   Sons.volumes(reglages.volumeEffets, reglages.volumeFond);
+  if (Micro.effet() !== reglages.effetVoix) Micro.choisirEffet(reglages.effetVoix);
+  Micro.volume(reglages.volumeVoix);
   $('#l-penalite').textContent = `−${reglages.minutesPenalite} min`;
   boucle();
 }
@@ -684,6 +782,7 @@ async function demarrer() {
   $('#b-annonce').onclick = annoncer;
   $('#b-stop').onclick = toutCouper;
   $('#b-stop-tout').onclick = toutCouper;
+  brancherMicro();
   $('#b-fond').onclick = basculerFond;
   document.querySelectorAll('[data-ajuster]').forEach(b => (b.onclick = () => ajuster(Number(b.dataset.ajuster))));
 

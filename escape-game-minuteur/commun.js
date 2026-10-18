@@ -25,6 +25,9 @@ const DEFAUTS = {
   fond: ['pack:sons/ambiances/nappe-sombre.ogg', 'pack:sons/horloges/horloge-lourde.ogg'],
   volumesCouches: {},
   fondAuDemarrage: true,
+  effetVoix: 'demon',
+  volumeVoix: 1,
+  micro: '',
 };
 
 const dureeEnMs = texte => {

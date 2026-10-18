@@ -59,6 +59,20 @@
       <button id="b-stop" class="discret">Couper tous les sons</button>
     </section>
 
+    <section class="carte" id="carte-micro">
+      <h2>Micro — voix déformée</h2>
+      <button id="b-micro-activer" class="gros">Activer le micro</button>
+      <div id="micro-commandes" hidden>
+        <button id="b-parler" class="gros">Maintenir pour parler</button>
+        <label class="case"><input type="checkbox" id="i-micro-verrou"> Rester en direct sans maintenir (un clic allume, un clic coupe)</label>
+        <div class="jauge" title="Niveau du micro"><div id="micro-niveau"></div></div>
+        <label>Effet sur la voix <select data-reglage="effetVoix" id="s-effet-voix"></select></label>
+        <label>Volume de la voix <input type="range" min="0" max="1.5" step="0.05" data-reglage="volumeVoix"></label>
+        <label>Micro utilisé <select id="s-micro"></select></label>
+      </div>
+      <p class="aide">Raccourci : maintenir la barre Espace pour parler. Le fond sonore baisse pendant que vous parlez. Pour éviter le larsen, utilisez un casque-micro ou éloignez le micro de la barre de son.</p>
+    </section>
+
     <section class="carte">
       <h2>Fond sonore</h2>
       <p class="aide">Plusieurs ambiances et horloges peuvent tourner en même temps. ▶ / ■ pour chacune, avec son propre volume.</p>
@@ -115,6 +129,7 @@
   <script src="sons/catalogue-recits.js"></script>
   <script src="sons/catalogue-enigmes.js"></script>
   <script src="sons.js"></script>
+  <script src="micro.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

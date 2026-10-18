@@ -25,6 +25,10 @@ if ($MettreAJour) {
     robocopy $source.FullName $dossier /E /XF METTRE-A-JOUR.bat /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -ge 8) { throw "La copie des fichiers a échoué (code $LASTEXITCODE)." }
     Remove-Item $zip, $tmp -Recurse -Force
+    # Met aussi l'icône du bureau à jour (nouvelles options de lancement), avec le script tout juste copié.
+    if (Test-Path (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Escape Game - Minuteur.lnk')) {
+        & (Join-Path $dossier 'outils\lanceur.ps1') -CreerIcone | Out-Null
+    }
     Write-Host '  Mise à jour terminée. Relancez la régie avec l''icône du bureau.' -ForegroundColor Green
     Write-Host ''
     return
@@ -39,7 +43,8 @@ $navigateur = @(
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $navigateur) { throw 'Microsoft Edge ou Google Chrome est introuvable sur ce PC.' }
 
-# Profil dedie + options : son autorise sans clic, minuteur jamais ralenti en arriere-plan.
+# Profil dedie + options : son autorise sans clic, micro autorise sans question,
+# minuteur jamais ralenti en arriere-plan.
 $arguments = @(
     "--app=`"$(([Uri]$page).AbsoluteUri)`""
     "--user-data-dir=`"$profil`""
@@ -48,6 +53,7 @@ $arguments = @(
     '--disable-renderer-backgrounding'
     '--disable-backgrounding-occluded-windows'
     '--disable-features=IntensiveWakeUpThrottling'
+    '--use-fake-ui-for-media-stream'
     '--no-first-run'
     '--no-default-browser-check'
     '--window-size=1400,900'
