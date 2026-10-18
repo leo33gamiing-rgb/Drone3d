@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Escape Game — Régie</title>
+  <link rel="icon" href="outils/icone.png">
+  <link rel="stylesheet" href="regie.css">
+</head>
+<body>
+  <div id="alerte-son" hidden>Le son est bloqué par le navigateur : cliquez n'importe où dans cette fenêtre pour l'activer.</div>
+
+  <header>
+    <h1>Régie — Escape game</h1>
+    <div id="horloge">--:--:--</div>
+  </header>
+
+  <main>
+    <section class="carte">
+      <h2>Écran des joueurs</h2>
+      <iframe id="apercu" src="ecran.html?apercu" title="Aperçu de l'écran des joueurs" tabindex="-1"></iframe>
+      <p id="statut"></p>
+      <button id="b-ecran">Ouvrir l'écran des joueurs</button>
+      <p class="aide">Glissez la fenêtre sur la télé ou le projecteur, puis double-cliquez dedans pour passer en plein écran.</p>
+    </section>
+
+    <section class="carte">
+      <h2>Actions</h2>
+      <button id="b-penalite" class="gros danger">Pénalité <span id="l-penalite">−7 min</span></button>
+      <div class="ligne">
+        <span id="nb-penalites">Aucune pénalité</span>
+        <button id="b-annuler">Annuler la dernière</button>
+      </div>
+      <button id="b-indice" class="gros">Indice disponible</button>
+      <button id="b-annonce">Annoncer le temps restant maintenant</button>
+      <p class="aide" id="prochaine-annonce"></p>
+      <button id="b-stop" class="discret">Couper tous les sons</button>
+    </section>
+
+    <section class="carte">
+      <h2>Ambiance</h2>
+      <p id="amb-actuelle">Aucune musique en cours</p>
+      <button id="b-ambiance" class="gros">Lancer l'ambiance</button>
+      <label class="case"><input type="checkbox" data-reglage="enchainer"> Enchaîner toutes les musiques importées</label>
+      <label>Volume de l'ambiance <input type="range" min="0" max="1.5" step="0.05" data-reglage="volumeAmbiance"></label>
+      <label>Volume des effets (screamers, indices, bruitages) <input type="range" min="0" max="2" step="0.05" data-reglage="volumeEffets"></label>
+    </section>
+
+    <section class="carte large">
+      <h2>Bibliothèque de sons</h2>
+      <p class="aide">▶ joue le son dans la pièce. Le rond coché désigne le son utilisé automatiquement. Double-cliquez sur un nom pour le renommer. Formats acceptés : MP3, WAV, OGG, M4A.</p>
+      <div class="categories">
+        <div class="cat" data-cat="screamer">
+          <h3>Screamers</h3>
+          <p class="aide">Le son coché part à chaque pénalité.</p>
+          <ul></ul>
+          <label class="ajout">+ Ajouter des sons<input type="file" accept="audio/*" multiple></label>
+        </div>
+        <div class="cat" data-cat="indice">
+          <h3>Indice disponible</h3>
+          <p class="aide">Le son coché part avec le bouton « Indice ».</p>
+          <ul></ul>
+          <label class="ajout">+ Ajouter des sons<input type="file" accept="audio/*" multiple></label>
+        </div>
+        <div class="cat" data-cat="bruitage">
+          <h3>Bruitages à la demande</h3>
+          <p class="aide">Rires, chuchotements, coups… à lancer quand vous voulez.</p>
+          <ul></ul>
+          <label class="ajout">+ Ajouter des sons<input type="file" accept="audio/*" multiple></label>
+        </div>
+        <div class="cat" data-cat="ambiance">
+          <h3>Musiques d'ambiance</h3>
+          <p class="aide">▶ la lance tout de suite ; la cochée part avec « Lancer l'ambiance ».</p>
+          <ul></ul>
+          <label class="ajout">+ Ajouter des musiques<input type="file" accept="audio/*" multiple></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2>Réglages</h2>
+      <div class="grille">
+        <label>Début de la partie <input type="datetime-local" data-reglage="debut"></label>
+        <label>Fin (au plus tard) <input type="datetime-local" data-reglage="fin"></label>
+        <label>Minutes par pénalité <input type="number" min="1" max="120" data-reglage="minutesPenalite"></label>
+        <label>Annonce toutes les (min) <input type="number" min="1" max="600" data-reglage="minutesAnnonce"></label>
+      </div>
+      <label>Phrase de l'annonce ({temps} = temps restant) <input type="text" data-reglage="texteAnnonce"></label>
+      <label>Son joué juste avant l'annonce <select data-reglage="sonAvantAnnonce"></select></label>
+      <label>Voix <select data-reglage="voix"></select></label>
+      <div class="grille">
+        <label>Voix grave ↔ aiguë <input type="range" min="0" max="2" step="0.1" data-reglage="hauteurVoix"></label>
+        <label>Vitesse de la voix <input type="range" min="0.5" max="1.5" step="0.05" data-reglage="vitesseVoix"></label>
+      </div>
+      <label>Texte affiché à l'écran pour un indice <input type="text" data-reglage="texteIndice"></label>
+      <div class="ligne">
+        <button id="b-demarrer">Démarrer la partie maintenant</button>
+        <button id="b-reinitialiser" class="discret">Réinitialiser la partie</button>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2>Journal</h2>
+      <ol id="journal"></ol>
+    </section>
+  </main>
+
+  <script src="commun.js"></script>
+  <script src="sons.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

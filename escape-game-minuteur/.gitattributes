@@ -1,0 +1,5 @@
+# Scripts Windows : gardes tels quels (fins de ligne CRLF, BOM).
+*.bat -text
+*.ps1 -text
+*.ico binary
+*.png binary

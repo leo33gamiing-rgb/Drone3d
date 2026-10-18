@@ -1,0 +1,162 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  font-family: Consolas, "Courier New", monospace;
+  color: #a80000;
+  cursor: none;
+  user-select: none;
+}
+
+#scene {
+  text-align: center;
+}
+
+#minuteur {
+  font-size: 17vw;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 0.06em rgb(255 0 0 / 0.7), 0 0 0.35em rgb(255 0 0 / 0.35);
+  animation: gresillement 7s infinite;
+}
+
+#message {
+  min-height: 1.2em;
+  margin-top: 3vw;
+  font-size: 3.4vw;
+  letter-spacing: 0.35em;
+  color: #d8d8d8;
+  text-shadow: 0 0 1vw rgb(255 255 255 / 0.5);
+  opacity: 0;
+  transition: opacity 2s;
+}
+
+#message.visible {
+  opacity: 1;
+  animation: souffle 3s ease-in-out infinite;
+}
+
+#vignette,
+#flash,
+#malus {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+#vignette {
+  background: radial-gradient(ellipse at center, transparent 45%, rgb(0 0 0 / 0.9) 100%);
+}
+
+#flash {
+  background: #f00;
+  opacity: 0;
+}
+
+#malus {
+  display: grid;
+  place-items: center;
+  font-size: 13vw;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 0.2em #f00;
+  opacity: 0;
+}
+
+#aide {
+  position: fixed;
+  bottom: 2vh;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  font: 14px system-ui, sans-serif;
+  color: #555;
+  animation: disparait 8s forwards;
+}
+
+.apercu #aide {
+  display: none;
+}
+
+/* Effets déclenchés par une pénalité */
+#flash.go { animation: flash 1.4s ease-out; }
+#malus.go { animation: malus 4.5s ease-out; }
+#scene.go { animation: secousse 0.8s linear; }
+
+/* États de la partie */
+body[data-etat="attente"] #minuteur {
+  color: #5a0000;
+  text-shadow: none;
+  animation: none;
+}
+
+body[data-etat="critique"] #minuteur {
+  color: #ff1a1a;
+  animation: pouls 1s ease-in-out infinite;
+}
+
+body[data-etat="fini"] #minuteur {
+  color: #ff1a1a;
+  animation: clignote 1s steps(1) infinite;
+}
+
+@keyframes gresillement {
+  0%, 41%, 43%, 45%, 87%, 89%, 100% { opacity: 1; }
+  42% { opacity: 0.35; }
+  44% { opacity: 0.6; }
+  88% { opacity: 0.5; }
+}
+
+@keyframes souffle {
+  50% { opacity: 0.45; }
+}
+
+@keyframes pouls {
+  0%, 30%, 100% { transform: scale(1); }
+  15% { transform: scale(1.04); }
+  45% { transform: scale(1.03); }
+}
+
+@keyframes clignote {
+  50% { opacity: 0; }
+}
+
+@keyframes flash {
+  0% { opacity: 1; background: #fff; }
+  6% { opacity: 0.95; background: #f00; }
+  20% { opacity: 0.1; }
+  26% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+@keyframes malus {
+  0% { opacity: 1; transform: scale(2); }
+  8% { transform: scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: scale(0.92); }
+}
+
+@keyframes secousse {
+  0%, 100% { transform: none; }
+  10% { transform: translate(-3vw, 1vw); }
+  20% { transform: translate(2vw, -2vw) skewX(8deg); }
+  30% { transform: translate(-1vw, 2vw); }
+  40% { transform: translate(3vw, 0) skewX(-6deg); }
+  55% { transform: translate(-2vw, -1vw); }
+  70% { transform: translate(1vw, 1vw); }
+  85% { transform: translate(-0.5vw, 0); }
+}
+
+@keyframes disparait {
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}

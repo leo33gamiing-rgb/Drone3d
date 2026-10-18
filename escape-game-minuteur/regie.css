@@ -1,0 +1,282 @@
+:root {
+  color-scheme: dark;
+  --fond: #0b0b0d;
+  --carte: #16161a;
+  --bord: #2a2a31;
+  --texte: #e9e6e1;
+  --pale: #9a968f;
+  --rouge: #b3121d;
+  --rouge-vif: #e5383b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font: 15px/1.45 "Segoe UI", system-ui, sans-serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--bord);
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+
+h2 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pale);
+}
+
+h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+#horloge {
+  font: 600 22px Consolas, monospace;
+  color: var(--pale);
+}
+
+main {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  padding: 16px 24px 40px;
+}
+
+.carte {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--carte);
+  border: 1px solid var(--bord);
+  border-radius: 10px;
+}
+
+.carte.large {
+  grid-column: 1 / -1;
+}
+
+.aide {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pale);
+}
+
+button,
+.ajout {
+  padding: 9px 14px;
+  font: inherit;
+  color: var(--texte);
+  text-align: center;
+  background: #24242b;
+  border: 1px solid #383841;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+button:hover,
+.ajout:hover {
+  background: #2e2e37;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.gros {
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.danger {
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--rouge);
+  border-color: var(--rouge-vif);
+}
+
+.danger:hover {
+  background: var(--rouge-vif);
+}
+
+.discret {
+  background: transparent;
+}
+
+.ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.ligne > span {
+  flex: 1;
+}
+
+#apercu {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid var(--bord);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+#statut {
+  margin: 0;
+  font-weight: 600;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--pale);
+}
+
+label.case {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: var(--texte);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+select {
+  padding: 7px 9px;
+  font: inherit;
+  color: var(--texte);
+  background: #0f0f12;
+  border: 1px solid #383841;
+  border-radius: 6px;
+}
+
+input[type="range"],
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: var(--rouge-vif);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.cat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--bord);
+  border-radius: 8px;
+}
+
+.cat ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cat li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  background: #1d1d22;
+  border-radius: 6px;
+}
+
+.cat li .nom {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat li button {
+  padding: 4px 9px;
+}
+
+.cat li input[type="radio"] {
+  width: 16px;
+  height: 16px;
+}
+
+.ajout {
+  display: block;
+  color: var(--texte);
+}
+
+.ajout input {
+  display: none;
+}
+
+#journal {
+  max-height: 260px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  font-size: 13px;
+  list-style: none;
+}
+
+#journal li {
+  padding: 3px 0;
+  border-bottom: 1px solid #222;
+}
+
+#journal time {
+  margin-right: 8px;
+  font-family: Consolas, monospace;
+  color: var(--pale);
+}
+
+#alerte-son {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 10px;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+  background: #8a6d00;
+  cursor: pointer;
+}
