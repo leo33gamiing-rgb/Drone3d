@@ -44,6 +44,10 @@ Une petite application qui tourne en local sur le PC, sans installation :
 | Annoncer le temps restant | Fait l'annonce vocale tout de suite. |
 | Couper tous les sons | Arrête net screamers, voix, récits et fond sonore. |
 
+## Sons en cours
+
+En bas à droite, le cadre **Sons en cours** est toujours visible, même quand tu fais défiler la page. Il liste tout ce qui joue : screamers, bruitages, récit, annonce vocale, ambiances et horloges en boucle, avec le temps écoulé. **■ Arrêter** coupe un son lancé par erreur ; **Tout couper** arrête tout.
+
 ## Le fond sonore
 
 Plusieurs **ambiances** (nappe sombre, vent, cave, chœur fantôme, asile, berceuse, orage, cœur lent) et **horloges** (grande horloge lourde, pendule, montre à gousset, horloge fantôme, mécanisme, tic-tac et cœur) peuvent tourner **en même temps**. Chacune a ▶ / ■ et son propre volume. Le mélange est mémorisé : *Lancer le fond sonore* le relance d'un clic. Il garde aussi la barre de son éveillée (beaucoup s'éteignent après 15 à 20 min de silence).
@@ -68,12 +72,13 @@ Vrais sons libres de droit (CC0) : violon de VSCO 2 Community Edition (Versilian
 
 ## La bibliothèque de sons
 
-Deux sortes de sons, chaque catégorie a un bouton **Au hasard** :
+Trois sortes de sons, chaque catégorie a un bouton **Au hasard** :
 
+- **12 JUMP SCARES** en tête des screamers, composés comme au cinéma avec de vrais instruments d'orchestre et de vrais cris : piano fracassé, violons de *Psychose*, trémolo qui monte puis cri, coup d'orchestre avec cuivres, timbales et gong, démon, chœur des damnés, orgue maudit, timbales de l'enfer… Instruments de VSCO 2 Community Edition (CC0), crédits dans `sons/reels/jumpscares/CREDITS.txt`.
 - **Vrais enregistrements « (réel) »**, libres de droit (CC0, domaine public), en tête de liste : 24 screamers (cris de femme et d'homme, hurlements, cris d'agonie, monstres, rugissements, verre brisé, violoncelle…), 5 portes et grincements, 12 bruitages (souffles, couteaux, eau, verre, robinet…) et un robinet en boucle. Sources dans `sons/CREDITS-CC0.txt`.
 - **Sons fabriqués par l'ordinateur** (synthèse) : 12 screamers, 5 indices, 8 rires, 10 chuchotements, 8 portes, 12 bruitages, 8 ambiances et 6 horloges.
 
-Par défaut, chaque pénalité joue **un vrai cri au hasard**. Dans la liste des screamers, tu peux choisir « au hasard parmi tous » ou un cri précis.
+Par défaut, chaque pénalité joue **un jump scare au hasard**, jamais deux fois le même de suite. Dans la liste des screamers, tu peux aussi choisir « au hasard parmi les vrais cris », « au hasard parmi tous » ou un son précis.
 
 Pour ajouter tes propres sons : **+ Ajouter des sons** (sites gratuits : freesound.org, pixabay.com/sound-effects, lasonotheque.org).
 

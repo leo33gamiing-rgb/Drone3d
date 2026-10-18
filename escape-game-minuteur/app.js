@@ -26,11 +26,17 @@ if (!reglages.reelsAjoutes) {
   if (reglages.screamer === 'hasard') reglages.screamer = 'hasard-reels';
   reglages.reelsAjoutes = true;
 }
+if (!reglages.terrifiantsAjoutes) {
+  // Les jump scares composés de vrais sons sont arrivés : ils deviennent le choix par défaut.
+  if (['hasard', 'hasard-reels'].includes(reglages.screamer)) reglages.screamer = 'hasard-terrifiants';
+  reglages.terrifiantsAjoutes = true;
+}
 let partie = charger(CLE_PARTIE, partieVide(reglages));
 let sons = [];
 let derniereAnnonce = null; // numéro de la dernière annonce passée (null = à recaler)
 let fenetreEcran = null;
 let lecture = 0; // numéro de la lecture enchaînée en cours (changé pour l'interrompre)
+let lectureActive = false;
 const derniersTirages = {};
 
 const heure = ms => new Date(ms).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -59,9 +65,12 @@ function signalerEcran(type, texte) {
   localStorage.setItem(CLE_EFFET, JSON.stringify({ id: Math.random(), type, texte, t: Date.now() }));
 }
 
-function auHasard(cat, seulementReels = false) {
+// Tirages au hasard possibles pour les screamers : tous, les vrais cris, ou les jump scares terrifiants.
+const FILTRES_HASARD = { hasard: null, 'hasard-reels': estReel, 'hasard-terrifiants': son => son.terrifiant };
+
+function auHasard(cat, filtre = null) {
   let liste = sons.filter(s => s.cat === cat);
-  if (seulementReels && liste.some(estReel)) liste = liste.filter(estReel);
+  if (filtre && liste.some(filtre)) liste = liste.filter(filtre);
   if (!liste.length) return null;
   let choix;
   do {
@@ -72,8 +81,8 @@ function auHasard(cat, seulementReels = false) {
 }
 
 function screamerPenalite() {
-  if (reglages.screamer === 'hasard') return auHasard('screamer');
-  return existe(reglages.screamer) ? reglages.screamer : auHasard('screamer', true);
+  if (reglages.screamer in FILTRES_HASARD) return auHasard('screamer', FILTRES_HASARD[reglages.screamer]);
+  return existe(reglages.screamer) ? reglages.screamer : auHasard('screamer', FILTRES_HASARD['hasard-terrifiants']);
 }
 const sonIndice = () => (existe(reglages.sonIndice) ? reglages.sonIndice : auHasard('indice'));
 
@@ -128,6 +137,57 @@ function boucle() {
     if (finie) finDePartie();
   }
   afficherStatut(t);
+  afficherEnCours();
+}
+
+// ---------- Sons en cours (pour arrêter un son lancé par erreur) ----------
+
+let signatureEnCours = '';
+const arretsEnCours = new Map(); // clé de la ligne -> fonction d'arrêt
+
+function minSec(s) {
+  return Number.isFinite(s) ? `${Math.floor(s / 60)}:${deuxChiffres(Math.floor(s % 60))}` : '…';
+}
+
+function afficherEnCours() {
+  const lignes = [];
+  if (window.speechSynthesis?.speaking) {
+    lignes.push({ cle: 'voix', nom: 'Annonce vocale', detail: 'voix', arreter: () => speechSynthesis.cancel() });
+  }
+  if (lectureActive) lignes.push({ cle: `lecture${lecture}`, nom: 'Lecture enchaînée', detail: 'récit', arreter: arreterLecture });
+  for (const s of Sons.sonsEnCours()) {
+    const son = sons.find(x => x.id === s.id);
+    lignes.push({
+      cle: `son${s.cle}`,
+      nom: son?.nom ?? 'son',
+      detail: `${CATEGORIES[son?.cat]?.titre ?? ''} · ${minSec(s.position)} / ${minSec(s.duree)}`,
+      arreter: () => Sons.arreterSon(s.cle),
+    });
+  }
+  for (const id of Sons.couchesActives()) {
+    const son = sons.find(x => x.id === id);
+    lignes.push({ cle: `couche${id}`, nom: son?.nom ?? 'son', detail: `${CATEGORIES[son?.cat]?.titre ?? ''} · en boucle`,
+      arreter: () => basculerCouche(id) });
+  }
+
+  arretsEnCours.clear();
+  lignes.forEach(l => arretsEnCours.set(l.cle, l.arreter));
+  const signature = lignes.map(l => l.cle).join('|');
+  const liste = $('#liste-en-cours');
+  if (signature !== signatureEnCours) {
+    // On ne reconstruit la liste que si elle change : un clic sur « Arrêter » n'est jamais perdu.
+    signatureEnCours = signature;
+    liste.replaceChildren(...lignes.map(l => element('li', {},
+      element('span', { className: 'nom', textContent: l.nom, title: l.nom }),
+      element('span', { className: 'detail' }),
+      bouton('■ Arrêter', 'Arrêter ce son', () => arretsEnCours.get(l.cle)?.()))));
+  }
+  [...liste.children].forEach((li, i) => {
+    const detail = li.querySelector('.detail');
+    if (detail.textContent !== lignes[i].detail) detail.textContent = lignes[i].detail;
+  });
+  $('#rien-en-cours').hidden = lignes.length > 0;
+  $('#b-stop-tout').hidden = lignes.length === 0;
 }
 
 function ecrire(selecteur, texte) {
@@ -328,6 +388,7 @@ async function finDePartie() {
 // Joue tous les sons d'une catégorie à la suite (ex. un récit découpé en plusieurs fichiers).
 async function lireDansLOrdre(cat) {
   const numero = ++lecture;
+  lectureActive = true;
   noter(`Lecture : ${CATEGORIES[cat].titre}`);
   Sons.attenuer(true);
   for (const son of sons.filter(s => s.cat === cat)) {
@@ -335,11 +396,20 @@ async function lireDansLOrdre(cat) {
     await Sons.jouer(son.id);
     await attendre(500);
   }
+  if (numero === lecture) lectureActive = false;
   Sons.attenuer(false);
+}
+
+function arreterLecture() {
+  lecture++;
+  lectureActive = false;
+  Sons.sonsEnCours().filter(s => CATEGORIES[sons.find(x => x.id === s.id)?.cat]?.enchaine)
+    .forEach(s => Sons.arreterSon(s.cle));
 }
 
 function toutCouper() {
   lecture++;
+  lectureActive = false;
   Sons.toutCouper();
   window.speechSynthesis?.cancel();
   afficherSons();
@@ -436,7 +506,11 @@ function blocCategorie(cle, categorie) {
   if (cle === 'screamer') {
     liste.append(
       element('li', { className: 'hasard' },
-        bouton('▶', 'Jouer un vrai cri au hasard', () => Sons.jouer(auHasard('screamer', true))),
+        bouton('▶', 'Jouer un jump scare au hasard', () => Sons.jouer(auHasard('screamer', FILTRES_HASARD['hasard-terrifiants']))),
+        element('span', { className: 'nom', textContent: 'Au hasard parmi les jump scares terrifiants' }),
+        choixParDefaut('screamer', 'hasard-terrifiants')),
+      element('li', { className: 'hasard' },
+        bouton('▶', 'Jouer un vrai cri au hasard', () => Sons.jouer(auHasard('screamer', estReel))),
         element('span', { className: 'nom', textContent: 'Au hasard parmi les vrais cris' }),
         choixParDefaut('screamer', 'hasard-reels')),
       element('li', { className: 'hasard' },
@@ -447,7 +521,7 @@ function blocCategorie(cle, categorie) {
   liste.append(...sons.filter(s => s.cat === cle).map(s => ligneSon(s, categorie)));
   const entete = element('div', { className: 'entete' }, element('h3', { textContent: categorie.titre }));
   if (categorie.enchaine) entete.append(bouton('Tout lire', 'Jouer tous les sons dans l\'ordre', () => lireDansLOrdre(cle)));
-  else if (!categorie.fond) entete.append(bouton('Au hasard', 'Jouer un son de cette catégorie au hasard', () => Sons.jouer(auHasard(cle, cle === 'screamer'))));
+  else if (!categorie.fond) entete.append(bouton('Au hasard', 'Jouer un son de cette catégorie au hasard', () => Sons.jouer(auHasard(cle, cle === 'screamer' ? FILTRES_HASARD['hasard-terrifiants'] : null))));
   const ajout = element('input', { type: 'file', accept: 'audio/*', multiple: true });
   ajout.onchange = () => {
     importer(cle, [...ajout.files]);
@@ -567,14 +641,16 @@ function lancerHorloge() {
 async function demarrer() {
   // Récits et vrais enregistrements d'abord, puis les sons fabriqués par synthèse.
   const catalogues = [
-    [typeof CATALOGUE_RECITS === 'undefined' ? [] : CATALOGUE_RECITS, true],
-    [typeof CATALOGUE_REELS === 'undefined' ? [] : CATALOGUE_REELS, true],
-    [typeof CATALOGUE === 'undefined' ? [] : CATALOGUE, false],
-    [typeof CATALOGUE_ENIGMES === 'undefined' ? [] : CATALOGUE_ENIGMES, false],
+    [typeof CATALOGUE_RECITS === 'undefined' ? [] : CATALOGUE_RECITS, { reel: true }],
+    [typeof CATALOGUE_JUMPSCARES === 'undefined' ? [] : CATALOGUE_JUMPSCARES, { reel: true, terrifiant: true }],
+    [typeof CATALOGUE_REELS === 'undefined' ? [] : CATALOGUE_REELS, { reel: true }],
+    [typeof CATALOGUE === 'undefined' ? [] : CATALOGUE, { reel: false }],
+    [typeof CATALOGUE_ENIGMES === 'undefined' ? [] : CATALOGUE_ENIGMES, { reel: false }],
   ];
-  for (const [catalogue, reel] of catalogues) {
+  for (const [catalogue, { reel, terrifiant = false }] of catalogues) {
     for (const { cat, fichier, nom } of catalogue) {
-      sons.push({ id: `pack:${fichier}`, nom: reel && cat !== 'recit' ? `${nom} (réel)` : nom, cat, reel });
+      const libelle = terrifiant ? `JUMP SCARE — ${nom}` : reel && cat !== 'recit' ? `${nom} (réel)` : nom;
+      sons.push({ id: `pack:${fichier}`, nom: libelle, cat, reel, terrifiant });
       Sons.enregistrer(`pack:${fichier}`, fichier);
     }
   }
@@ -607,6 +683,7 @@ async function demarrer() {
   $('#b-indice').onclick = indice;
   $('#b-annonce').onclick = annoncer;
   $('#b-stop').onclick = toutCouper;
+  $('#b-stop-tout').onclick = toutCouper;
   $('#b-fond').onclick = basculerFond;
   document.querySelectorAll('[data-ajuster]').forEach(b => (b.onclick = () => ajuster(Number(b.dataset.ajuster))));
 

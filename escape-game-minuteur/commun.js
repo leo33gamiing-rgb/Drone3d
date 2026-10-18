@@ -19,7 +19,7 @@ const DEFAUTS = {
   vitesseVoix: 0.9,
   volumeEffets: 1,
   volumeFond: 0.7,
-  screamer: 'hasard-reels',
+  screamer: 'hasard-terrifiants',
   sonIndice: 'pack:sons/indice/boite-a-musique.ogg',
   sonAvantAnnonce: 'pack:sons/bruitages/glas.ogg',
   fond: ['pack:sons/ambiances/nappe-sombre.ogg', 'pack:sons/horloges/horloge-lourde.ogg'],

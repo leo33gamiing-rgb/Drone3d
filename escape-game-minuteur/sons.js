@@ -5,7 +5,8 @@
 
 const Sons = (() => {
   const urls = new Map(); // id du son -> URL du fichier
-  const enCours = new Set(); // fonctions d'arrêt des sons ponctuels en cours
+  const enCours = new Map(); // numéro -> { id, audio, arreter } : sons ponctuels en cours
+  let numero = 0;
   const couches = new Map(); // id -> { audio, volume } : fond sonore en cours
   let volEffets = 1;
   let volFond = 0.7;
@@ -62,14 +63,15 @@ const Sons = (() => {
       if (!urls.has(id)) return fin();
       const audio = new Audio(urls.get(id));
       audio.volume = borne(volEffets);
+      const cle = ++numero;
       const arreter = () => {
         audio.pause();
-        enCours.delete(arreter);
+        enCours.delete(cle);
         fin();
       };
       audio.onended = arreter;
       audio.onerror = arreter;
-      enCours.add(arreter);
+      enCours.set(cle, { id, audio, arreter });
       audio.play().then(() => (actif = true), arreter);
     });
   }
@@ -110,6 +112,8 @@ const Sons = (() => {
     jouer,
     demarrerCouche,
     arreterCouche,
+    sonsEnCours: () => [...enCours].map(([cle, { id, audio }]) => ({ cle, id, position: audio.currentTime, duree: audio.duration })),
+    arreterSon: cle => enCours.get(cle)?.arreter(),
     coucheActive: id => couches.has(id),
     couchesActives: () => [...couches.keys()],
     volumeDeCouche(id, volume) {
@@ -123,7 +127,7 @@ const Sons = (() => {
       [...couches.keys()].forEach(arreterCouche);
     },
     toutCouper() {
-      [...enCours].forEach(arreter => arreter());
+      [...enCours.values()].forEach(son => son.arreter());
       [...couches.keys()].forEach(arreterCouche);
     },
     volumes(effets, fond) {
