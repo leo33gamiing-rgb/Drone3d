@@ -1,0 +1,6 @@
+Sons réels CC0 (domaine public), Benjamin Burnes (abstractionmusic.com),
+via https://github.com/lavenderdotpet/cc0-public-domain-sounds :
+  BB_2HTC Samples Vol 4/Drums/2022-04-16 Triple-C THICCC - Big Kick.wav
+  BB_2HTC Samples Vol 4/Drums/2022-08-17 Approaching the Crash Site - Boom.wav
+  bb - Novice Cello (Nov 2021)/C2 - Sustain 1.wav
+  bb - Fans and Drones (Jul 2021)/Air Vent.wav

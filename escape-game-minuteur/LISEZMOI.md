@@ -48,6 +48,24 @@ Une petite application qui tourne en local sur le PC, sans installation :
 
 Plusieurs **ambiances** (nappe sombre, vent, cave, chœur fantôme, asile, berceuse, orage, cœur lent) et **horloges** (grande horloge lourde, pendule, montre à gousset, horloge fantôme, mécanisme, tic-tac et cœur) peuvent tourner **en même temps**. Chacune a ▶ / ■ et son propre volume. Le mélange est mémorisé : *Lancer le fond sonore* le relance d'un clic. Il garde aussi la barre de son éveillée (beaucoup s'éteignent après 15 à 20 min de silence).
 
+## L'énigme en morse
+
+Dans *Fond sonore → Énigmes sonores*, **« Code morse : A B E F U »** tourne en boucle comme les ambiances (▶ / ■ et son volume) :
+
+- **son court = point**, **son long = trait** : la même note grave de violoncelle avec un coup de grosse caisse grave ; le trait dure 3 fois le point (0,3 s contre 0,9 s) ;
+- 0,3 s de silence entre les signes, 1,5 s entre les lettres, puis **6 s de pause** avant que le message recommence ;
+- un grondement sourd et une nappe sombre tournent en continu, sans aucun rythme pour ne pas brouiller le message.
+
+| Lettre | Morse |
+| --- | --- |
+| A | · — |
+| B | — · · · |
+| E | · |
+| F | · · — · |
+| U | · · — |
+
+Vrais sons libres de droit (CC0). Version de 5 minutes à télécharger : `recits/morse-abefu.mp3`. Pour un autre mot : `python3 outils/fabrique/fabriquer_morse.py <collection CC0> MOT`.
+
 ## La bibliothèque de sons
 
 Deux sortes de sons, chaque catégorie a un bouton **Au hasard** :

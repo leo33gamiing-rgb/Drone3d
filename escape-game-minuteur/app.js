@@ -15,6 +15,7 @@ const CATEGORIES = {
   recit: { titre: 'Récits et voix', aide: 'Vos enregistrements. « Tout lire » les enchaîne dans l\'ordre.', enchaine: true },
   ambiance: { titre: 'Ambiances', fond: true },
   horloge: { titre: 'Horloges (tic-tac)', fond: true },
+  enigme: { titre: 'Énigmes sonores (en boucle)', fond: true },
 };
 
 let reglages = charger(CLE_REGLAGES, DEFAUTS);
@@ -569,6 +570,7 @@ async function demarrer() {
     [typeof CATALOGUE_RECITS === 'undefined' ? [] : CATALOGUE_RECITS, true],
     [typeof CATALOGUE_REELS === 'undefined' ? [] : CATALOGUE_REELS, true],
     [typeof CATALOGUE === 'undefined' ? [] : CATALOGUE, false],
+    [typeof CATALOGUE_ENIGMES === 'undefined' ? [] : CATALOGUE_ENIGMES, false],
   ];
   for (const [catalogue, reel] of catalogues) {
     for (const { cat, fichier, nom } of catalogue) {
