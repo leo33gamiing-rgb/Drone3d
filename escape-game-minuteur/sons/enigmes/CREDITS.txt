@@ -1,6 +1,5 @@
-Sons réels CC0 (domaine public), Benjamin Burnes (abstractionmusic.com),
-via https://github.com/lavenderdotpet/cc0-public-domain-sounds :
-  BB_2HTC Samples Vol 4/Drums/2022-04-16 Triple-C THICCC - Big Kick.wav
-  BB_2HTC Samples Vol 4/Drums/2022-08-17 Approaching the Crash Site - Boom.wav
-  bb - Novice Cello (Nov 2021)/C2 - Sustain 1.wav
-  bb - Fans and Drones (Jul 2021)/Air Vent.wav
+Sons réels CC0 (domaine public) :
+  Violon : VSCO 2 Community Edition, Versilian Studios (https://github.com/sgossner/VSCO-2-CE)
+    Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_G3_f.wav
+  Fond : Benjamin Burnes (abstractionmusic.com), via https://github.com/lavenderdotpet/cc0-public-domain-sounds
+    bb - Fans and Drones (Jul 2021)/Air Vent.wav

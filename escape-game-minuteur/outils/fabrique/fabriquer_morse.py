@@ -1,12 +1,14 @@
-"""Énigme sonore en boucle : un message en morse joué avec de vrais sons graves (CC0),
+"""Énigme sonore en boucle : un message en morse joué au violon (vrai enregistrement, CC0),
 sur un fond sonore angoissant continu, avec une longue pause avant chaque reprise.
 
-Points et traits : la même note grave de violoncelle (do, 65 Hz) avec un coup de grosse caisse au départ ;
+Points et traits : la note la plus grave du violon (sol, 196 Hz) jouée à l'archet ;
 seule la durée change (court = point, long = trait), comme du vrai morse.
 Fond : ventilation réelle ralentie (grondement) + nappe sombre de l'app, sans aucun rythme.
-Sources : collection CC0 https://github.com/lavenderdotpet/cc0-public-domain-sounds (packs de Benjamin Burnes).
+Sources (CC0) : violon solo de VSCO 2 Community Edition (Versilian Studios,
+https://github.com/sgossner/VSCO-2-CE) ; ventilation de Benjamin Burnes via
+https://github.com/lavenderdotpet/cc0-public-domain-sounds.
 
-Lancement : python3 fabriquer_morse.py /chemin/vers/cc0-public-domain-sounds [MESSAGE]
+Lancement : python3 fabriquer_morse.py /chemin/cc0-public-domain-sounds /chemin/VSCO-2-CE [MESSAGE]
 """
 import os
 import sys
@@ -36,9 +38,7 @@ ENTRE_SIGNES = 0.3
 ENTRE_LETTRES = 1.5
 AVANT_REPRISE = 6.0
 
-KICK = 'BB_2HTC Samples Vol 4/Drums/2022-04-16 Triple-C THICCC - Big Kick.wav'
-BOOM = 'BB_2HTC Samples Vol 4/Drums/2022-08-17 Approaching the Crash Site - Boom.wav'
-VIOLONCELLE = 'bb - Novice Cello (Nov 2021)/C2 - Sustain 1.wav'
+VIOLON = 'Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_G3_f.wav'
 VENTILATION = 'bb - Fans and Drones (Jul 2021)/Air Vent.wav'
 
 
@@ -51,9 +51,9 @@ def tenir(x, duree, attaque=0.02, relache=0.08):
     return x
 
 
-def note_stable(collection):
+def note_stable(chemin):
     """Passage le plus régulier de la note tenue à l'archet, au volume aplani : un seul bloc de son."""
-    corde = lire(os.path.join(collection, VIOLONCELLE))
+    corde = lire(chemin)
     fenetre = n_ech(0.05)
     enveloppe = np.sqrt(np.convolve(corde.mean(axis=0) ** 2, np.ones(fenetre) / fenetre, 'same')) + 1e-6
     n = n_ech(TRAIT + 0.2)
@@ -64,22 +64,11 @@ def note_stable(collection):
     return normaliser(morceau * aplani)
 
 
-def signes(collection):
-    kick = normaliser(lire(os.path.join(collection, KICK)))
-    boom = normaliser(lire(os.path.join(collection, BOOM)))
-    coup = Piste()
-    coup.ajouter(kick, 0, 1.0)
-    coup.ajouter(boom, 0, 0.6)
-    coup = tenir(normaliser(coup.x), POINT, attaque=0.001, relache=0.1)
-    note = note_stable(collection)
-
-    def signe(duree):
-        p = Piste()
-        p.ajouter(tenir(note, duree, attaque=0.008, relache=0.06), 0, 0.8)
-        p.ajouter(coup, 0, 0.45)
-        return normaliser(p.x)
-
-    return signe(POINT), signe(TRAIT)
+def signes(vsco):
+    note = note_stable(os.path.join(vsco, VIOLON))
+    # Coup d'archet court (point) ou long (trait), avec une attaque franche.
+    return (normaliser(tenir(note, POINT, attaque=0.015, relache=0.07)),
+            normaliser(tenir(note, TRAIT, attaque=0.015, relache=0.1)))
 
 
 def fond(collection, duree):
@@ -91,8 +80,8 @@ def fond(collection, duree):
     return boucler(x, 3)
 
 
-def cycle(message, collection):
-    point, trait = signes(collection)
+def cycle(message, collection, vsco):
+    point, trait = signes(vsco)
     evenements, t = [], 0.0
     for i, lettre in enumerate(message):
         for j, signe in enumerate(MORSE[lettre]):
@@ -107,13 +96,13 @@ def cycle(message, collection):
     morse = reverb(morse.x, 0.9, 0.12, boucle=True)  # écho léger : les sons restent nets
     total = Piste(duree, boucle=True)
     total.ajouter(normaliser(morse, 0.9), 0)
-    total.ajouter(fond(collection, duree), 0, 0.16)
+    total.ajouter(fond(collection, duree), 0, 0.11)
     return total.x, duree
 
 
-def fabriquer(collection, message='ABEFU'):
+def fabriquer(collection, vsco, message='ABEFU'):
     message = message.upper().replace(' ', '')
-    x, duree = cycle(message, collection)
+    x, duree = cycle(message, collection, vsco)
     nom = f'morse-{message.lower()}'
     os.makedirs(os.path.join(SONS, 'enigmes'), exist_ok=True)
     exporter(x, os.path.join(SONS, 'enigmes', f'{nom}.ogg'), qualite=0.6)
@@ -123,13 +112,14 @@ def fabriquer(collection, message='ABEFU'):
     with open(os.path.join(SONS, 'catalogue-enigmes.js'), 'w', encoding='utf-8') as f:
         f.write("'use strict';\n// Énigmes sonores fabriquées par outils/fabrique/fabriquer_morse.py.\n"
                 f"const CATALOGUE_ENIGMES = [\n  {{ cat: 'enigme', fichier: 'sons/enigmes/{nom}.ogg', "
-                f"nom: 'Code morse : {lettres}' }},\n];\n")
+                f"nom: 'Code morse au violon : {lettres}' }},\n];\n")
     with open(os.path.join(SONS, 'enigmes', 'CREDITS.txt'), 'w', encoding='utf-8') as f:
-        f.write('Sons réels CC0 (domaine public), Benjamin Burnes (abstractionmusic.com),\n'
-                'via https://github.com/lavenderdotpet/cc0-public-domain-sounds :\n'
-                f'  {KICK}\n  {BOOM}\n  {VIOLONCELLE}\n  {VENTILATION}\n')
+        f.write('Sons réels CC0 (domaine public) :\n'
+                f'  Violon : VSCO 2 Community Edition, Versilian Studios (https://github.com/sgossner/VSCO-2-CE)\n    {VIOLON}\n'
+                '  Fond : Benjamin Burnes (abstractionmusic.com), via https://github.com/lavenderdotpet/cc0-public-domain-sounds\n'
+                f'    {VENTILATION}\n')
     print(f'{message} : cycle de {duree} s, version téléchargeable de {repetitions} cycles')
 
 
 if __name__ == '__main__':
-    fabriquer(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else 'ABEFU')
+    fabriquer(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else 'ABEFU')

@@ -50,9 +50,9 @@ Plusieurs **ambiances** (nappe sombre, vent, cave, chœur fantôme, asile, berce
 
 ## L'énigme en morse
 
-Dans *Fond sonore → Énigmes sonores*, **« Code morse : A B E F U »** tourne en boucle comme les ambiances (▶ / ■ et son volume) :
+Dans *Fond sonore → Énigmes sonores*, **« Code morse au violon : A B E F U »** tourne en boucle comme les ambiances (▶ / ■ et son volume) :
 
-- **son court = point**, **son long = trait** : la même note grave de violoncelle avec un coup de grosse caisse grave ; le trait dure 3 fois le point (0,3 s contre 0,9 s) ;
+- **son court = point**, **son long = trait** : un vrai violon joue sa note la plus grave (sol) en coups d'archet courts ou longs ; le trait dure 3 fois le point (0,3 s contre 0,9 s) ;
 - 0,3 s de silence entre les signes, 1,5 s entre les lettres, puis **6 s de pause** avant que le message recommence ;
 - un grondement sourd et une nappe sombre tournent en continu, sans aucun rythme pour ne pas brouiller le message.
 
@@ -64,7 +64,7 @@ Dans *Fond sonore → Énigmes sonores*, **« Code morse : A B E F U »** tourne
 | F | · · — · |
 | U | · · — |
 
-Vrais sons libres de droit (CC0). Version de 5 minutes à télécharger : `recits/morse-abefu.mp3`. Pour un autre mot : `python3 outils/fabrique/fabriquer_morse.py <collection CC0> MOT`.
+Vrais sons libres de droit (CC0) : violon de VSCO 2 Community Edition (Versilian Studios), sources dans `sons/enigmes/CREDITS.txt`. Version de 5 minutes à télécharger : `recits/morse-abefu.mp3`. Pour un autre mot : `python3 outils/fabrique/fabriquer_morse.py <collection CC0> <VSCO-2-CE> MOT`.
 
 ## La bibliothèque de sons
 
