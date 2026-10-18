@@ -1,6 +1,12 @@
 RÉCIT DE LA POLICIÈRE — OBTENIR UNE VOIX RÉALISTE GRATUITEMENT
 ================================================================
 
+DÉJÀ PRÊT : recit-policiere.mp3 (dans ce dossier, et dans la régie :
+« Récits et voix »). Voix féminine de synthèse neuronale (Kokoro), vrais
+cris et souffles (CC0), eau, robinet et téléphone, acoustique de salle de
+bain. La voix ne sait pas pleurer : pour encore plus d'émotion, les options
+ci-dessous restent valables.
+
 Une fois l'enregistrement prêt : dans la régie, « Bibliothèque de sons »
 → « Récits et voix » → « + Ajouter des sons ». Le bouton « Tout lire »
 enchaîne les fichiers dans l'ordre d'import (nommez-les 01, 02, 03…).

@@ -50,11 +50,16 @@ Plusieurs **ambiances** (nappe sombre, vent, cave, chœur fantôme, asile, berce
 
 ## La bibliothèque de sons
 
-Screamers (12), indices (5), rires (8), chuchotements (10), portes et coups (8), autres bruitages (12, dont téléphone, robinet, chaise et bruit sous l'eau). Chaque catégorie a un bouton **Au hasard**.
+Deux sortes de sons, chaque catégorie a un bouton **Au hasard** :
 
-Ces sons sont **fabriqués par l'ordinateur** (synthèse), sans enregistrement. Les horloges, portes, ambiances et bruitages rendent bien. Les rires, cris et chuchotements restent synthétiques : pour du vraiment réaliste, importe de vrais enregistrements avec **+ Ajouter des sons** (sites gratuits : freesound.org, pixabay.com/sound-effects, lasonotheque.org).
+- **Vrais enregistrements « (réel) »**, libres de droit (CC0, domaine public), en tête de liste : 24 screamers (cris de femme et d'homme, hurlements, cris d'agonie, monstres, rugissements, verre brisé, violoncelle…), 5 portes et grincements, 12 bruitages (souffles, couteaux, eau, verre, robinet…) et un robinet en boucle. Sources dans `sons/CREDITS-CC0.txt`.
+- **Sons fabriqués par l'ordinateur** (synthèse) : 12 screamers, 5 indices, 8 rires, 10 chuchotements, 8 portes, 12 bruitages, 8 ambiances et 6 horloges.
 
-**Récits et voix** : importe tes enregistrements (par exemple le récit de la policière, voir `recits/RECIT-POLICIERE.txt`). *Tout lire* les enchaîne dans l'ordre.
+Par défaut, chaque pénalité joue **un vrai cri au hasard**. Dans la liste des screamers, tu peux choisir « au hasard parmi tous » ou un cri précis.
+
+Pour ajouter tes propres sons : **+ Ajouter des sons** (sites gratuits : freesound.org, pixabay.com/sound-effects, lasonotheque.org).
+
+**Récits et voix** : contient le **récit de la policière** (3 min 50), enregistré avec une voix féminine de synthèse neuronale, de vrais cris et souffles, et les bruits d'eau, de robinet et de téléphone. Il est aussi téléchargeable seul : `recits/recit-policiere.mp3`. Tu peux importer tes propres enregistrements ; *Tout lire* les enchaîne dans l'ordre.
 
 ## Bon à savoir
 

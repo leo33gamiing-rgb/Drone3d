@@ -1,0 +1,90 @@
+SONS RÉELS LIBRES DE DROIT (CC0 1.0, domaine public)
+======================================================
+Collection : https://github.com/lavenderdotpet/cc0-public-domain-sounds (commit f2b6264f9ab8)
+Licence : CC0 1.0 Universal — usage libre, sans attribution obligatoire.
+Les fichiers ont seulement été recadrés, mis au même volume et convertis en OGG.
+
+sons/reels/screamers/cri-femme-mort.ogg
+    Warfork, Team Forbidden — warfork-cc0/sounds/players/female/death.ogg
+sons/reels/screamers/cri-femme-chute.ogg
+    Warfork, Team Forbidden — warfork-cc0/sounds/players/female/falldeath.ogg
+sons/reels/screamers/cri-femme-douleur.ogg
+    Warfork, Team Forbidden — warfork-cc0/sounds/players/female/pain100.ogg
+sons/reels/screamers/cri-homme-mort.ogg
+    Warfork, Team Forbidden — warfork-cc0/sounds/players/male/death.ogg
+sons/reels/screamers/cri-homme-chute.ogg
+    Warfork, Team Forbidden — warfork-cc0/sounds/players/male/falldeath.ogg
+sons/reels/screamers/hurlement-creature-1.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-SFX/scream_01.ogg
+sons/reels/screamers/hurlement-creature-2.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-SFX/scream_02.ogg
+sons/reels/screamers/agonie-1.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/die_02.ogg
+sons/reels/screamers/agonie-2.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/die_03.ogg
+sons/reels/screamers/agonie-3.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/die_04.ogg
+sons/reels/screamers/rale-humain-1.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/human_03.ogg
+sons/reels/screamers/rale-humain-2.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/human_07.ogg
+sons/reels/screamers/rugissement-1.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/roar_04.ogg
+sons/reels/screamers/rugissement-2.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/roar_05.ogg
+sons/reels/screamers/hurlement.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-SFX/howl.ogg
+sons/reels/screamers/monstre-1.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-SFX/monster_04.ogg
+sons/reels/screamers/monstre-2.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-SFX/monster_07.ogg
+sons/reels/screamers/monstre-3.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/monster_12.ogg
+sons/reels/screamers/grognement-monstrueux.ogg
+    Benjamin Burnes (abstractionmusic.com) — BB_2HTC Samples Vol 4/Weird/2022-08-10 I Should Be Sleeping - Growly.wav
+sons/reels/screamers/bete-1.ogg
+    Benjamin Burnes (abstractionmusic.com) — BB_Retail Therapy Sample Pack/Monster Noise 2.wav
+sons/reels/screamers/bete-2.ogg
+    Benjamin Burnes (abstractionmusic.com) — BB_Retail Therapy Sample Pack/Monster Noise 8.wav
+sons/reels/screamers/raclement-strident.ogg
+    Benjamin Burnes (abstractionmusic.com) — Micro Pack - Kitchen Knives/Unpleasant Scraping 1.wav
+sons/reels/screamers/verre-brise.ogg
+    rubberduck (OpenGameArt) — 75-cc0-breaking-falling-hit-sfx/bfh1_glass_breaking_01.ogg
+sons/reels/screamers/violoncelle-brutal.ogg
+    Benjamin Burnes (abstractionmusic.com) — bb - Novice Cello (Nov 2021)/C2 - Sforzando 1.wav
+sons/reels/portes/grincement-1.ogg
+    Kenney (kenney.nl) — kenney_rpgaudio/Audio/creak1.ogg
+sons/reels/portes/grincement-2.ogg
+    Kenney (kenney.nl) — kenney_rpgaudio/Audio/creak2.ogg
+sons/reels/portes/grincement-3.ogg
+    Kenney (kenney.nl) — kenney_rpgaudio/Audio/creak3.ogg
+sons/reels/portes/porte-ouverture.ogg
+    Kenney (kenney.nl) — kenney_rpgaudio/Audio/doorOpen_1.ogg
+sons/reels/portes/porte-fermeture.ogg
+    Kenney (kenney.nl) — kenney_rpgaudio/Audio/doorClose_4.ogg
+sons/reels/bruitages/souffle-coupe-femme.ogg
+    Warfork, Team Forbidden — warfork-cc0/sounds/players/female/gasp.ogg
+sons/reels/bruitages/souffle-rauque.ogg
+    rubberduck (OpenGameArt) — 80-CC0-creature-sfx-2/breath_02.ogg
+sons/reels/bruitages/couteau-degaine.ogg
+    Benjamin Burnes (abstractionmusic.com) — Micro Pack - Kitchen Knives/Big Knife - Unsheath 1.wav
+sons/reels/bruitages/lame-qui-racle.ogg
+    Benjamin Burnes (abstractionmusic.com) — Micro Pack - Kitchen Knives/Big Knife - Scrape 3.wav
+sons/reels/bruitages/raclement-long.ogg
+    Benjamin Burnes (abstractionmusic.com) — Micro Pack - Kitchen Knives/Unpleasant Scraping 3.wav
+sons/reels/bruitages/chaise-roulettes.ogg
+    MissLav — MissLavs Sounds/chairwheel.ogg
+sons/reels/bruitages/eclaboussure-1.ogg
+    rubberduck (OpenGameArt) — 40-cc0-water-splash-slime-sfx/splash_07.ogg
+sons/reels/bruitages/eclaboussure-2.ogg
+    rubberduck (OpenGameArt) — 40-cc0-water-splash-slime-sfx/splash_03.ogg
+sons/reels/bruitages/bulles.ogg
+    rubberduck (OpenGameArt) — 40-cc0-water-splash-slime-sfx/loop_bubbles_1.ogg
+sons/reels/bruitages/verre-brise-2.ogg
+    rubberduck (OpenGameArt) — 75-cc0-breaking-falling-hit-sfx/bfh1_glass_breaking_03.ogg
+sons/reels/bruitages/objet-brise.ogg
+    rubberduck (OpenGameArt) — 75-cc0-breaking-falling-hit-sfx/bfh1_breaking_01.ogg
+sons/reels/bruitages/robinet.ogg
+    Benjamin Burnes (abstractionmusic.com) — bb - Fans and Drones (Jul 2021)/Sink and Faucet.wav
+sons/reels/ambiances/robinet-boucle.ogg
+    Benjamin Burnes (abstractionmusic.com) — bb - Fans and Drones (Jul 2021)/Sink and Faucet.wav

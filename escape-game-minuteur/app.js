@@ -20,6 +20,11 @@ const CATEGORIES = {
 let reglages = charger(CLE_REGLAGES, DEFAUTS);
 reglages.fond = [...reglages.fond];
 reglages.volumesCouches = { ...reglages.volumesCouches };
+if (!reglages.reelsAjoutes) {
+  // Les vrais cris sont arrivés : la pénalité les tire désormais au hasard (choix modifiable).
+  if (reglages.screamer === 'hasard') reglages.screamer = 'hasard-reels';
+  reglages.reelsAjoutes = true;
+}
 let partie = charger(CLE_PARTIE, partieVide(reglages));
 let sons = [];
 let derniereAnnonce = null; // numéro de la dernière annonce passée (null = à recaler)
@@ -32,6 +37,7 @@ const attendre = ms => new Promise(fin => setTimeout(fin, ms));
 const nomDuSon = id => sons.find(s => s.id === id)?.nom ?? 'aucun son';
 const existe = id => sons.some(s => s.id === id);
 const estImporte = son => son.id.startsWith('f:');
+const estReel = son => son.reel || estImporte(son); // vrai enregistrement (fourni ou importé)
 const intervalleAnnonce = () => Math.max(1, reglages.minutesAnnonce) * MINUTE;
 const volumeCouche = id => reglages.volumesCouches[id] ?? 0.8;
 
@@ -52,8 +58,9 @@ function signalerEcran(type, texte) {
   localStorage.setItem(CLE_EFFET, JSON.stringify({ id: Math.random(), type, texte, t: Date.now() }));
 }
 
-function auHasard(cat) {
-  const liste = sons.filter(s => s.cat === cat);
+function auHasard(cat, seulementReels = false) {
+  let liste = sons.filter(s => s.cat === cat);
+  if (seulementReels && liste.some(estReel)) liste = liste.filter(estReel);
   if (!liste.length) return null;
   let choix;
   do {
@@ -63,7 +70,10 @@ function auHasard(cat) {
   return choix.id;
 }
 
-const screamerPenalite = () => (existe(reglages.screamer) ? reglages.screamer : auHasard('screamer'));
+function screamerPenalite() {
+  if (reglages.screamer === 'hasard') return auHasard('screamer');
+  return existe(reglages.screamer) ? reglages.screamer : auHasard('screamer', true);
+}
 const sonIndice = () => (existe(reglages.sonIndice) ? reglages.sonIndice : auHasard('indice'));
 
 // ---------- Fichiers audio importés (gardés dans le navigateur) ----------
@@ -423,15 +433,20 @@ function ligneSon(son, categorie) {
 function blocCategorie(cle, categorie) {
   const liste = element('ul');
   if (cle === 'screamer') {
-    liste.append(element('li', { className: 'hasard' },
-      bouton('▶', 'Jouer un screamer au hasard', () => Sons.jouer(auHasard('screamer'))),
-      element('span', { className: 'nom', textContent: 'Au hasard (un différent à chaque fois)' }),
-      choixParDefaut('screamer', 'hasard')));
+    liste.append(
+      element('li', { className: 'hasard' },
+        bouton('▶', 'Jouer un vrai cri au hasard', () => Sons.jouer(auHasard('screamer', true))),
+        element('span', { className: 'nom', textContent: 'Au hasard parmi les vrais cris' }),
+        choixParDefaut('screamer', 'hasard-reels')),
+      element('li', { className: 'hasard' },
+        bouton('▶', 'Jouer un screamer au hasard', () => Sons.jouer(auHasard('screamer'))),
+        element('span', { className: 'nom', textContent: 'Au hasard parmi tous' }),
+        choixParDefaut('screamer', 'hasard')));
   }
   liste.append(...sons.filter(s => s.cat === cle).map(s => ligneSon(s, categorie)));
   const entete = element('div', { className: 'entete' }, element('h3', { textContent: categorie.titre }));
   if (categorie.enchaine) entete.append(bouton('Tout lire', 'Jouer tous les sons dans l\'ordre', () => lireDansLOrdre(cle)));
-  else if (!categorie.fond) entete.append(bouton('Au hasard', 'Jouer un son de cette catégorie au hasard', () => Sons.jouer(auHasard(cle))));
+  else if (!categorie.fond) entete.append(bouton('Au hasard', 'Jouer un son de cette catégorie au hasard', () => Sons.jouer(auHasard(cle, cle === 'screamer'))));
   const ajout = element('input', { type: 'file', accept: 'audio/*', multiple: true });
   ajout.onchange = () => {
     importer(cle, [...ajout.files]);
@@ -549,9 +564,17 @@ function lancerHorloge() {
 }
 
 async function demarrer() {
-  for (const { cat, fichier, nom } of typeof CATALOGUE === 'undefined' ? [] : CATALOGUE) {
-    sons.push({ id: `pack:${fichier}`, nom, cat });
-    Sons.enregistrer(`pack:${fichier}`, fichier);
+  // Récits et vrais enregistrements d'abord, puis les sons fabriqués par synthèse.
+  const catalogues = [
+    [typeof CATALOGUE_RECITS === 'undefined' ? [] : CATALOGUE_RECITS, true],
+    [typeof CATALOGUE_REELS === 'undefined' ? [] : CATALOGUE_REELS, true],
+    [typeof CATALOGUE === 'undefined' ? [] : CATALOGUE, false],
+  ];
+  for (const [catalogue, reel] of catalogues) {
+    for (const { cat, fichier, nom } of catalogue) {
+      sons.push({ id: `pack:${fichier}`, nom: reel && cat !== 'recit' ? `${nom} (réel)` : nom, cat, reel });
+      Sons.enregistrer(`pack:${fichier}`, fichier);
+    }
   }
   try {
     const importes = (await Base.tous()).sort((a, b) => a.ajoute - b.ajoute);
