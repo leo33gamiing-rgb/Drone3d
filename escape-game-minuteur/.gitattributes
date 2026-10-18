@@ -3,3 +3,4 @@
 *.ps1 -text
 *.ico binary
 *.png binary
+*.ogg binary

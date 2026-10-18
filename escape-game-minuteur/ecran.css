@@ -93,7 +93,8 @@ body {
 #scene.go { animation: secousse 0.8s linear; }
 
 /* États de la partie */
-body[data-etat="attente"] #minuteur {
+body[data-etat="attente"] #minuteur,
+body[data-etat="pause"] #minuteur {
   color: #5a0000;
   text-shadow: none;
   animation: none;

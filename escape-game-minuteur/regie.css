@@ -123,6 +123,30 @@ button:disabled {
   background: var(--rouge-vif);
 }
 
+.vert {
+  background: #1d5c34;
+  border-color: #2f8a52;
+}
+
+.vert:hover {
+  background: #26753f;
+}
+
+.ajustements {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.ajustements button {
+  padding: 8px 4px;
+  font-size: 14px;
+}
+
+.ligne input[type="number"] {
+  width: 64px;
+}
+
 .discret {
   background: transparent;
 }
@@ -210,9 +234,45 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  max-height: 340px;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
   list-style: none;
+}
+
+.cat .entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cat .entete button {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+#fond .cat {
+  border: none;
+  padding: 0;
+}
+
+#fond .cat ul {
+  max-height: none;
+}
+
+.cat li input[type="range"] {
+  width: 90px;
+}
+
+.cat li.active {
+  background: #3a1518;
+  outline: 1px solid var(--rouge);
+}
+
+.cat li.hasard .nom {
+  font-style: italic;
 }
 
 .cat li {

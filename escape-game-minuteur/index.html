@@ -16,11 +16,34 @@
 
   <main>
     <section class="carte">
-      <h2>Écran des joueurs</h2>
+      <h2>Minuteur</h2>
       <iframe id="apercu" src="ecran.html?apercu" title="Aperçu de l'écran des joueurs" tabindex="-1"></iframe>
       <p id="statut"></p>
-      <button id="b-ecran">Ouvrir l'écran des joueurs</button>
-      <p class="aide">Glissez la fenêtre sur la télé ou le projecteur, puis double-cliquez dedans pour passer en plein écran.</p>
+      <button id="b-marche" class="gros vert">Démarrer le minuteur</button>
+      <div class="ajustements">
+        <button data-ajuster="-10">−10 min</button>
+        <button data-ajuster="-5">−5 min</button>
+        <button data-ajuster="-1">−1 min</button>
+        <button data-ajuster="1">+1 min</button>
+        <button data-ajuster="5">+5 min</button>
+        <button data-ajuster="10">+10 min</button>
+      </div>
+      <div class="ligne">
+        <span>Temps restant :</span>
+        <input type="number" id="i-heures" min="0" max="23" value="8" aria-label="Heures"> h
+        <input type="number" id="i-minutes" min="0" max="59" value="0" aria-label="Minutes"> min
+        <button id="b-regler">Régler</button>
+      </div>
+      <div class="ligne">
+        <span>Ou finir à :</span>
+        <input type="time" id="i-fin" value="02:00" aria-label="Heure de fin">
+        <button id="b-finir">Régler</button>
+      </div>
+      <div class="ligne">
+        <button id="b-ecran">Ouvrir l'écran des joueurs</button>
+        <button id="b-reinitialiser" class="discret">Réinitialiser</button>
+      </div>
+      <p class="aide">Glissez l'écran des joueurs sur la télé, puis double-cliquez dedans pour le plein écran.</p>
     </section>
 
     <section class="carte">
@@ -37,65 +60,37 @@
     </section>
 
     <section class="carte">
-      <h2>Ambiance</h2>
-      <p id="amb-actuelle">Aucune musique en cours</p>
-      <button id="b-ambiance" class="gros">Lancer l'ambiance</button>
-      <label class="case"><input type="checkbox" data-reglage="enchainer"> Enchaîner toutes les musiques importées</label>
-      <label>Volume de l'ambiance <input type="range" min="0" max="1.5" step="0.05" data-reglage="volumeAmbiance"></label>
-      <label>Volume des effets (screamers, indices, bruitages) <input type="range" min="0" max="2" step="0.05" data-reglage="volumeEffets"></label>
+      <h2>Fond sonore</h2>
+      <p class="aide">Plusieurs ambiances et horloges peuvent tourner en même temps. ▶ / ■ pour chacune, avec son propre volume.</p>
+      <button id="b-fond" class="gros">Lancer le fond sonore</button>
+      <label class="case"><input type="checkbox" data-reglage="fondAuDemarrage"> Le lancer au démarrage du minuteur</label>
+      <label>Volume du fond sonore <input type="range" min="0" max="1" step="0.05" data-reglage="volumeFond"></label>
+      <label>Volume des effets (screamers, rires…) <input type="range" min="0" max="1" step="0.05" data-reglage="volumeEffets"></label>
+      <div id="fond"></div>
     </section>
 
     <section class="carte large">
       <h2>Bibliothèque de sons</h2>
-      <p class="aide">▶ joue le son dans la pièce. Le rond coché désigne le son utilisé automatiquement. Double-cliquez sur un nom pour le renommer. Formats acceptés : MP3, WAV, OGG, M4A.</p>
-      <div class="categories">
-        <div class="cat" data-cat="screamer">
-          <h3>Screamers</h3>
-          <p class="aide">Le son coché part à chaque pénalité.</p>
-          <ul></ul>
-          <label class="ajout">+ Ajouter des sons<input type="file" accept="audio/*" multiple></label>
-        </div>
-        <div class="cat" data-cat="indice">
-          <h3>Indice disponible</h3>
-          <p class="aide">Le son coché part avec le bouton « Indice ».</p>
-          <ul></ul>
-          <label class="ajout">+ Ajouter des sons<input type="file" accept="audio/*" multiple></label>
-        </div>
-        <div class="cat" data-cat="bruitage">
-          <h3>Bruitages à la demande</h3>
-          <p class="aide">Rires, chuchotements, coups… à lancer quand vous voulez.</p>
-          <ul></ul>
-          <label class="ajout">+ Ajouter des sons<input type="file" accept="audio/*" multiple></label>
-        </div>
-        <div class="cat" data-cat="ambiance">
-          <h3>Musiques d'ambiance</h3>
-          <p class="aide">▶ la lance tout de suite ; la cochée part avec « Lancer l'ambiance ».</p>
-          <ul></ul>
-          <label class="ajout">+ Ajouter des musiques<input type="file" accept="audio/*" multiple></label>
-        </div>
-      </div>
+      <p class="aide">▶ joue le son dans la pièce, « Au hasard » en choisit un. Le rond coché est utilisé automatiquement. Double-cliquez sur un son importé pour le renommer. Formats : MP3, WAV, OGG, M4A.</p>
+      <div class="categories" id="bibliotheque"></div>
     </section>
 
     <section class="carte">
       <h2>Réglages</h2>
       <div class="grille">
-        <label>Début de la partie <input type="datetime-local" data-reglage="debut"></label>
-        <label>Fin (au plus tard) <input type="datetime-local" data-reglage="fin"></label>
+        <label>Durée au départ (h:min) <input type="time" data-reglage="dureeDepart"></label>
         <label>Minutes par pénalité <input type="number" min="1" max="120" data-reglage="minutesPenalite"></label>
         <label>Annonce toutes les (min) <input type="number" min="1" max="600" data-reglage="minutesAnnonce"></label>
       </div>
       <label>Phrase de l'annonce ({temps} = temps restant) <input type="text" data-reglage="texteAnnonce"></label>
       <label>Son joué juste avant l'annonce <select data-reglage="sonAvantAnnonce"></select></label>
-      <label>Voix <select data-reglage="voix"></select></label>
+      <label>Voix des annonces <select data-reglage="voix"></select></label>
+      <p class="aide">Les voix « Online (Natural) » d'Edge sont les plus naturelles (connexion Internet nécessaire).</p>
       <div class="grille">
         <label>Voix grave ↔ aiguë <input type="range" min="0" max="2" step="0.1" data-reglage="hauteurVoix"></label>
         <label>Vitesse de la voix <input type="range" min="0.5" max="1.5" step="0.05" data-reglage="vitesseVoix"></label>
       </div>
       <label>Texte affiché à l'écran pour un indice <input type="text" data-reglage="texteIndice"></label>
-      <div class="ligne">
-        <button id="b-demarrer">Démarrer la partie maintenant</button>
-        <button id="b-reinitialiser" class="discret">Réinitialiser la partie</button>
-      </div>
     </section>
 
     <section class="carte">
@@ -105,6 +100,7 @@
   </main>
 
   <script src="commun.js"></script>
+  <script src="sons/catalogue.js"></script>
   <script src="sons.js"></script>
   <script src="app.js"></script>
 </body>

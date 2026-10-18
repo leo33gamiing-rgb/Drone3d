@@ -3,28 +3,46 @@
 // Les deux fenêtres se parlent via le stockage local du navigateur.
 
 const MINUTE = 60000;
+const CLE_REGLAGES = 'egm2.reglages';
+const CLE_PARTIE = 'egm2.partie';
+const CLE_EFFET = 'egm.effet';
 
 // Réglages par défaut : tous modifiables depuis la régie.
 const DEFAUTS = {
-  debut: '2026-10-19T18:00',
-  fin: '2026-10-20T02:00',
+  dureeDepart: '08:00',
   minutesPenalite: 7,
   minutesAnnonce: 58,
   texteAnnonce: 'Il vous reste {temps}.',
   texteIndice: 'UN INDICE EST DISPONIBLE',
   voix: '',
-  hauteurVoix: 0.5,
-  vitesseVoix: 0.85,
+  hauteurVoix: 0.8,
+  vitesseVoix: 0.9,
   volumeEffets: 1,
-  volumeAmbiance: 0.5,
-  screamer: 'synth:cri',
-  sonIndice: 'synth:carillon',
-  sonAvantAnnonce: 'synth:glas',
-  ambiance: 'synth:nappe',
-  enchainer: true,
+  volumeFond: 0.7,
+  screamer: 'hasard',
+  sonIndice: 'pack:sons/indice/boite-a-musique.ogg',
+  sonAvantAnnonce: 'pack:sons/bruitages/glas.ogg',
+  fond: ['pack:sons/ambiances/nappe-sombre.ogg', 'pack:sons/horloges/horloge-lourde.ogg'],
+  volumesCouches: {},
+  fondAuDemarrage: true,
 };
 
-const partieVide = () => ({ penalites: [], finie: false, journal: [] });
+const dureeEnMs = texte => {
+  const [h, m] = String(texte).split(':').map(Number);
+  return ((h || 0) * 60 + (m || 0)) * MINUTE;
+};
+
+const partieVide = reglages => ({
+  lance: false, // le minuteur a déjà été démarré une fois
+  enMarche: false,
+  finPrevue: 0, // heure de fin (ms) pendant que le minuteur tourne
+  resteFige: dureeEnMs(reglages.dureeDepart), // temps restant (ms) quand il est arrêté
+  jeuAccumule: 0, // temps de jeu écoulé avant la dernière reprise
+  repriseA: 0,
+  penalites: [], // [{ t, minutes }]
+  finie: false,
+  journal: [],
+});
 
 function charger(cle, defaut) {
   try {
@@ -34,14 +52,14 @@ function charger(cle, defaut) {
   }
 }
 
-// Temps restant = fin de l'évènement − pénalités − heure actuelle (figé avant le début).
-function calculer(reglages, partie, maintenant = Date.now()) {
-  const debut = new Date(reglages.debut).getTime();
-  const fin = new Date(reglages.fin).getTime() - partie.penalites.length * reglages.minutesPenalite * MINUTE;
-  const commencee = maintenant >= debut;
-  const reste = Math.max(0, fin - Math.max(maintenant, debut));
-  const etat = !commencee ? 'attente' : reste <= 0 ? 'fini' : reste <= 10 * MINUTE ? 'critique' : 'jeu';
-  return { maintenant, debut, fin, reste, commencee, etat };
+function calculer(partie, maintenant = Date.now()) {
+  const reste = partie.enMarche ? Math.max(0, partie.finPrevue - maintenant) : Math.max(0, partie.resteFige);
+  const jeu = partie.jeuAccumule + (partie.enMarche ? maintenant - partie.repriseA : 0);
+  const etat = !partie.lance ? 'attente'
+    : reste <= 0 ? 'fini'
+      : !partie.enMarche ? 'pause'
+        : reste <= 10 * MINUTE ? 'critique' : 'jeu';
+  return { maintenant, reste, jeu, etat, fin: maintenant + reste };
 }
 
 const deuxChiffres = n => String(n).padStart(2, '0');

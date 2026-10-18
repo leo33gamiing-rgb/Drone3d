@@ -1,0 +1,202 @@
+RÉCIT DE LA POLICIÈRE — OBTENIR UNE VOIX RÉALISTE GRATUITEMENT
+================================================================
+
+Une fois l'enregistrement prêt : dans la régie, « Bibliothèque de sons »
+→ « Récits et voix » → « + Ajouter des sons ». Le bouton « Tout lire »
+enchaîne les fichiers dans l'ordre d'import (nommez-les 01, 02, 03…).
+Le fond sonore baisse automatiquement pendant la lecture.
+
+
+OPTION 1 — LA PLUS RÉALISTE : UNE VRAIE VOIX (gratuit)
+-------------------------------------------------------
+Une amie lit le texte de la partie A avec un téléphone. Aucune IA ne sait
+encore crier, sangloter ou suffoquer aussi bien qu'une vraie personne.
+
+Conseils d'enregistrement :
+- Petite pièce calme, idéalement une salle de bain : l'écho de carrelage
+  colle parfaitement à l'histoire (la baignoire, la salle d'eau).
+- Téléphone en mode avion, à 20-30 cm de la bouche, application dictaphone.
+- Elle peut faire plusieurs prises et s'arrêter entre les parties.
+- Pour le cri du début, s'éloigner un peu du téléphone pour ne pas saturer.
+- Jouer les indications entre crochets sans les lire à voix haute.
+- Envoyer le fichier sur le PC (câble, e-mail, WhatsApp Web…) puis l'importer.
+
+
+OPTION 2 — IA GRATUITE : CHATTERBOX MULTILINGUAL
+------------------------------------------------
+Modèle gratuit et libre (licence MIT) qui parle français et propose un
+réglage d'intensité des émotions (« Exaggeration »). Une démo en ligne
+existe sur Hugging Face (chercher « Chatterbox Multilingual » de
+ResembleAI dans huggingface.co/spaces) ; il peut y avoir une file d'attente.
+
+Réglages conseillés :
+- Langue : French.
+- Exaggeration : la valeur indiquée pour chaque morceau (0,5 = calme,
+  1,0 = bouleversée). CFG / Pace : environ 0,3 pour garder un débit lent.
+- Facultatif mais très efficace : donner comme « voix de référence » 10 s
+  d'une amie qui parle d'une voix triste. L'IA imitera son timbre.
+- Générer morceau par morceau (partie B), télécharger chaque fichier en le
+  nommant 01, 02, 03…, puis les importer tous d'un coup dans « Récits et voix ».
+
+Limite : l'IA parle bien, mais elle ne sait pas vraiment crier ni pleurer.
+Les cris, pleurs et respirations se mettent à part (option 3).
+
+
+OPTION 3 — CRIS, PLEURS ET RESPIRATIONS RÉALISTES (gratuits)
+------------------------------------------------------------
+Sites gratuits :
+- freesound.org (compte gratuit ; filtre de licence « Creative Commons 0 »)
+- pixabay.com/sound-effects
+- lasonotheque.org (banque de sons française gratuite)
+
+Recherches (en anglais, beaucoup plus de résultats) :
+- cri du début ............ woman scream terror / woman scream stop
+- cri qui se casse ........ scream voice crack
+- respiration paniquée .... panicked breathing female / hyperventilating woman
+- déglutition ............. gulp / swallow nervous
+- sanglot ................. woman sob / short sob
+- pleurs .................. woman crying / woman weeping
+- inspiration suspendue ... gasp woman / sharp inhale
+- noyade .................. drowning struggle / underwater struggle
+
+Déjà fournis dans l'app (Autres bruitages) : Robinet qui coule, Téléphone qui
+sonne, Chaise qu'on déplace, Sous l'eau (bulles), Respiration rauque.
+Ils peuvent être lancés à la main pendant le récit.
+
+
+PARTIE A — TEXTE POUR UNE VRAIE VOIX (avec indications de jeu)
+===============================================================
+
+[Un cri soudain, déchirant, à pleine voix.]
+« ARRÊTEZ ! ARRÊTEZ… JE SUIS ENCORE VIVANTE ! »
+
+[Le cri se casse. Respiration paniquée, quelques secondes. Puis voix très faible.]
+« C'est ce que je leur ai dit.
+Comme s'ils ne le savaient pas… »
+
+[Silence.]
+
+« Ils m'avaient attachée dans une baignoire. Le bandeau me collait aux yeux.
+Je ne voyais pas leurs visages… je ne savais jamais lequel allait me toucher.
+J'entendais quelqu'un déplacer une chaise.
+Il s'est assis à côté de moi.
+Il allait rester là. »
+
+[Elle déglutit difficilement.]
+
+« Le premier coup de couteau… dans le ventre… je n'ai pas compris tout de suite.
+J'ai senti mon corps se raidir. J'ai essayé de me recroqueviller, mais les liens me retenaient.
+Et puis la douleur est arrivée.
+Je lui ai demandé d'enlever sa main. Je ne savais même pas ce que je disais…
+je répétais : "Enlevez votre main. S'il vous plaît." »
+
+[La voix se brise. Deux respirations avant de continuer.]
+
+« Il m'a pris la main.
+Pendant qu'un autre recommençait.
+Il me tenait les doigts… comme quelqu'un qui aurait voulu me rassurer. »
+
+[Un sanglot bref, incontrôlable.]
+
+« Quand je criais, ils me plongeaient la tête sous l'eau.
+Je ne pouvais même pas crier jusqu'au bout.
+Ils me remontaient… j'essayais de reprendre de l'air, de leur parler…
+et je sentais qu'ils se rapprochaient encore.
+J'attendais le prochain coup.
+Je ne voyais rien. Je ne pouvais que l'attendre. »
+
+[Silence de trois secondes.]
+
+« À un moment, ils se sont arrêtés.
+J'entendais seulement le robinet. Quelqu'un fouillait dans mes affaires.
+Puis mon téléphone a sonné. »
+
+[Elle essaie de parler normalement, mais n'y arrive pas.]
+
+« C'était ma mère. Je reconnaissais sa sonnerie.
+Ils l'ont laissé sonner, juste à côté de moi.
+J'ai dit : "Décrochez… dites-lui de venir me chercher."
+Je savais qu'elle ne pouvait pas.
+Mais je voulais qu'elle vienne me chercher. »
+
+[Elle pleure quelques instants, puis reprend dans un souffle.]
+
+« L'un d'eux s'est penché contre mon oreille.
+Il a dit : "On va terminer. Ne bouge plus."
+J'ai cru qu'il allait me détacher.
+Même après tout ça… pendant une seconde, je l'ai cru. »
+
+[Une inspiration qui reste suspendue.]
+
+« Puis ils m'ont remise sous l'eau.
+Cette fois, ils ne m'ont pas remontée.
+J'essayais encore de bouger les doigts… pour qu'ils comprennent que j'étais toujours là.
+Jusqu'au bout, j'ai attendu qu'on me laisse respirer. »
+
+[Long silence. Elle tente de retrouver une voix ferme.]
+
+« J'étais policière.
+J'avais découvert une organisation qui faisait disparaître des gens.
+Ils organisaient leurs mises à mort… ils les filmaient.
+J'avais trouvé des noms. Des preuves.
+Ils m'ont capturée avant que je puisse les transmettre. »
+
+[Pause.]
+
+« Pendant le trajet, j'avais les yeux bandés. Ils m'ont sortie du véhicule,
+puis forcée à prendre un escalier.
+Je me souviens des marches… de leurs mains sur mes bras.
+Mais je ne sais plus si je montais ou si je descendais. »
+
+[Elle cherche ses mots, bouleversée.]
+
+« Il y a une chose dont je suis sûre. Je les ai entendus parler des preuves,
+des documents qu'ils m'avaient pris.
+Ils les avaient laissés dans une salle d'eau.
+Les indices étaient là… dans une salle d'eau.
+Mais les escaliers… »
+
+[Un dernier souffle tremblant.]
+
+« Je ne me souviens plus. »
+
+
+PARTIE B — MORCEAUX POUR L'IA (Chatterbox)
+==========================================
+Coller uniquement le texte entre guillemets. « À PART » = son à trouver
+séparément (option 3) ou à lancer depuis la régie, à importer à sa place
+dans l'ordre (ex. 01a-cri.mp3, 01b-respiration.mp3).
+
+00  À PART : cri déchirant, puis respiration paniquée.
+01  [Exaggeration 1,0]  « Arrêtez ! Arrêtez… Je suis encore vivante ! »
+02  [0,5]  « C'est ce que je leur ai dit. Comme s'ils ne le savaient pas… »
+03  [0,6]  « Ils m'avaient attachée dans une baignoire. Le bandeau me collait aux yeux. Je ne voyais pas leurs visages… je ne savais jamais lequel allait me toucher. »
+04  [0,5]  « J'entendais quelqu'un déplacer une chaise. Il s'est assis à côté de moi. Il allait rester là. »
+        (régie : « Chaise qu'on déplace »)
+05  À PART : déglutition.
+06  [0,7]  « Le premier coup de couteau… dans le ventre… je n'ai pas compris tout de suite. »
+07  [0,8]  « J'ai senti mon corps se raidir. J'ai essayé de me recroqueviller, mais les liens me retenaient. Et puis la douleur est arrivée. »
+08  [0,9]  « Je lui ai demandé d'enlever sa main. Je ne savais même pas ce que je disais… je répétais : Enlevez votre main. S'il vous plaît. »
+09  À PART : deux respirations tremblantes.
+10  [0,8]  « Il m'a pris la main. Pendant qu'un autre recommençait. Il me tenait les doigts… comme quelqu'un qui aurait voulu me rassurer. »
+11  À PART : sanglot bref.
+12  [0,9]  « Quand je criais, ils me plongeaient la tête sous l'eau. Je ne pouvais même pas crier jusqu'au bout. »
+        (régie : « Sous l'eau (bulles) »)
+13  [0,8]  « Ils me remontaient… j'essayais de reprendre de l'air, de leur parler… et je sentais qu'ils se rapprochaient encore. J'attendais le prochain coup. Je ne voyais rien. Je ne pouvais que l'attendre. »
+14  [0,5]  « À un moment, ils se sont arrêtés. J'entendais seulement le robinet. Quelqu'un fouillait dans mes affaires. Puis mon téléphone a sonné. »
+        (régie : « Robinet qui coule » puis « Téléphone qui sonne »)
+15  [0,8]  « C'était ma mère. Je reconnaissais sa sonnerie. Ils l'ont laissé sonner, juste à côté de moi. »
+16  [1,0]  « J'ai dit : Décrochez… dites-lui de venir me chercher. Je savais qu'elle ne pouvait pas. Mais je voulais qu'elle vienne me chercher. »
+17  À PART : pleurs quelques secondes.
+18  [0,6]  « L'un d'eux s'est penché contre mon oreille. Il a dit : On va terminer. Ne bouge plus. »
+19  [0,8]  « J'ai cru qu'il allait me détacher. Même après tout ça… pendant une seconde, je l'ai cru. »
+20  À PART : inspiration suspendue.
+21  [0,7]  « Puis ils m'ont remise sous l'eau. Cette fois, ils ne m'ont pas remontée. »
+22  [0,9]  « J'essayais encore de bouger les doigts… pour qu'ils comprennent que j'étais toujours là. Jusqu'au bout, j'ai attendu qu'on me laisse respirer. »
+23  [0,4]  « J'étais policière. J'avais découvert une organisation qui faisait disparaître des gens. Ils organisaient leurs mises à mort… ils les filmaient. »
+24  [0,4]  « J'avais trouvé des noms. Des preuves. Ils m'ont capturée avant que je puisse les transmettre. »
+25  [0,6]  « Pendant le trajet, j'avais les yeux bandés. Ils m'ont sortie du véhicule, puis forcée à prendre un escalier. Je me souviens des marches… de leurs mains sur mes bras. Mais je ne sais plus si je montais ou si je descendais. »
+26  [0,6]  « Il y a une chose dont je suis sûre. Je les ai entendus parler des preuves, des documents qu'ils m'avaient pris. Ils les avaient laissés dans une salle d'eau. »
+27  [0,8]  « Les indices étaient là… dans une salle d'eau. Mais les escaliers… »
+28  À PART : souffle tremblant.
+29  [0,7]  « Je ne me souviens plus. »

@@ -6,7 +6,7 @@ const el = id => document.getElementById(id);
 
 function lireEffet() {
   try {
-    return JSON.parse(localStorage.getItem('egm.effet'));
+    return JSON.parse(localStorage.getItem(CLE_EFFET));
   } catch {
     return null;
   }
@@ -21,7 +21,8 @@ function rejouer(element, classe) {
 }
 
 function rafraichir() {
-  const t = calculer(charger('egm.reglages', DEFAUTS), charger('egm.partie', partieVide()));
+  const reglages = charger(CLE_REGLAGES, DEFAUTS);
+  const t = calculer(charger(CLE_PARTIE, partieVide(reglages)));
   const texte = hms(t.reste);
   if (el('minuteur').textContent !== texte) el('minuteur').textContent = texte;
   if (document.body.dataset.etat !== t.etat) document.body.dataset.etat = t.etat;

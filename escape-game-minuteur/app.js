@@ -1,34 +1,43 @@
 'use strict';
-// Régie : minuteur, pénalités, annonces vocales et bibliothèque de sons.
+// Régie : minuteur, pénalités, annonces vocales, fond sonore et bibliothèque de sons.
 
 const $ = selecteur => document.querySelector(selecteur);
 
-// Sons générés par l'ordinateur, disponibles même sans fichier importé.
-const SONS_INTEGRES = [
-  { id: 'synth:cri', nom: 'Cri strident (généré)', cat: 'screamer' },
-  { id: 'synth:carillon', nom: 'Boîte à musique faussée (générée)', cat: 'indice' },
-  { id: 'synth:glas', nom: 'Glas funèbre (généré)', cat: 'bruitage' },
-  { id: 'synth:coeur', nom: 'Battements de cœur (générés)', cat: 'bruitage' },
-  { id: 'synth:nappe', nom: 'Nappe angoissante (générée)', cat: 'ambiance' },
-];
+// Catégories de sons. `defaut` : réglage qui mémorise le son utilisé automatiquement.
+// `fond` : sons qui tournent en boucle et peuvent se superposer.
+const CATEGORIES = {
+  screamer: { titre: 'Screamers', aide: 'Le son coché part à chaque pénalité.', defaut: 'screamer' },
+  indice: { titre: 'Indice disponible', aide: 'Le son coché part avec le bouton « Indice ».', defaut: 'sonIndice' },
+  rire: { titre: 'Rires' },
+  chuchotement: { titre: 'Chuchotements' },
+  porte: { titre: 'Portes et coups' },
+  bruitage: { titre: 'Autres bruitages' },
+  recit: { titre: 'Récits et voix', aide: 'Vos enregistrements. « Tout lire » les enchaîne dans l\'ordre.', enchaine: true },
+  ambiance: { titre: 'Ambiances', fond: true },
+  horloge: { titre: 'Horloges (tic-tac)', fond: true },
+};
 
-// Catégorie de sons -> réglage qui mémorise le son « par défaut » de la catégorie.
-const CATEGORIES = { screamer: 'screamer', indice: 'sonIndice', bruitage: null, ambiance: 'ambiance' };
-
-let reglages = charger('egm.reglages', DEFAUTS);
-let partie = charger('egm.partie', partieVide());
-let sons = [...SONS_INTEGRES];
-let derniereAnnonce = null; // numéro de la dernière annonce passée (null = à recaler sur l'heure)
+let reglages = charger(CLE_REGLAGES, DEFAUTS);
+reglages.fond = [...reglages.fond];
+reglages.volumesCouches = { ...reglages.volumesCouches };
+let partie = charger(CLE_PARTIE, partieVide(reglages));
+let sons = [];
+let derniereAnnonce = null; // numéro de la dernière annonce passée (null = à recaler)
 let fenetreEcran = null;
+let lecture = 0; // numéro de la lecture enchaînée en cours (changé pour l'interrompre)
+const derniersTirages = {};
 
 const heure = ms => new Date(ms).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 const attendre = ms => new Promise(fin => setTimeout(fin, ms));
-const nomDuSon = id => sons.find(s => s.id === id)?.nom ?? 'son inconnu';
+const nomDuSon = id => sons.find(s => s.id === id)?.nom ?? 'aucun son';
+const existe = id => sons.some(s => s.id === id);
+const estImporte = son => son.id.startsWith('f:');
 const intervalleAnnonce = () => Math.max(1, reglages.minutesAnnonce) * MINUTE;
+const volumeCouche = id => reglages.volumesCouches[id] ?? 0.8;
 
 function sauver() {
-  localStorage.setItem('egm.reglages', JSON.stringify(reglages));
-  localStorage.setItem('egm.partie', JSON.stringify(partie));
+  localStorage.setItem(CLE_REGLAGES, JSON.stringify(reglages));
+  localStorage.setItem(CLE_PARTIE, JSON.stringify(partie));
 }
 
 function noter(message) {
@@ -40,8 +49,22 @@ function noter(message) {
 
 // Déclenche un effet visuel sur l'écran des joueurs.
 function signalerEcran(type, texte) {
-  localStorage.setItem('egm.effet', JSON.stringify({ id: Math.random(), type, texte, t: Date.now() }));
+  localStorage.setItem(CLE_EFFET, JSON.stringify({ id: Math.random(), type, texte, t: Date.now() }));
 }
+
+function auHasard(cat) {
+  const liste = sons.filter(s => s.cat === cat);
+  if (!liste.length) return null;
+  let choix;
+  do {
+    choix = liste[Math.floor(Math.random() * liste.length)];
+  } while (liste.length > 1 && choix.id === derniersTirages[cat]);
+  derniersTirages[cat] = choix.id;
+  return choix.id;
+}
+
+const screamerPenalite = () => (existe(reglages.screamer) ? reglages.screamer : auHasard('screamer'));
+const sonIndice = () => (existe(reglages.sonIndice) ? reglages.sonIndice : auHasard('indice'));
 
 // ---------- Fichiers audio importés (gardés dans le navigateur) ----------
 
@@ -79,12 +102,12 @@ const Base = {
 // ---------- Minuteur ----------
 
 function boucle() {
-  const t = calculer(reglages, partie);
-  const numero = t.commencee ? Math.floor((t.maintenant - t.debut) / intervalleAnnonce()) : -1;
+  const t = calculer(partie);
+  const numero = Math.floor(t.jeu / intervalleAnnonce());
   if (derniereAnnonce === null || numero < derniereAnnonce) derniereAnnonce = numero;
   if (numero > derniereAnnonce) {
     derniereAnnonce = numero;
-    if (t.etat !== 'fini') annoncer();
+    if (t.etat === 'jeu' || t.etat === 'critique') annoncer();
   }
 
   const finie = t.etat === 'fini';
@@ -93,7 +116,7 @@ function boucle() {
     sauver();
     if (finie) finDePartie();
   }
-  afficherStatut(t, numero);
+  afficherStatut(t);
 }
 
 function ecrire(selecteur, texte) {
@@ -101,21 +124,96 @@ function ecrire(selecteur, texte) {
   if (element.textContent !== texte) element.textContent = texte;
 }
 
-function afficherStatut(t, numero) {
+function afficherStatut(t) {
   ecrire('#horloge', new Date(t.maintenant).toLocaleTimeString('fr-FR'));
   ecrire('#statut', {
-    attente: `En attente — la partie commence à ${heure(t.debut)}`,
-    jeu: `Partie en cours — fin à ${heure(t.fin)}`,
+    attente: `Prêt : ${hms(t.reste)} au compteur. Cliquez sur « Démarrer » quand vous voulez.`,
+    jeu: `En cours — fin prévue à ${heure(t.fin)}`,
     critique: `Dernières minutes ! Fin à ${heure(t.fin)}`,
+    pause: `En pause — ${hms(t.reste)} restant`,
     fini: 'Temps écoulé',
   }[t.etat]);
+
+  const marche = $('#b-marche');
+  ecrire('#b-marche', {
+    attente: 'Démarrer le minuteur',
+    jeu: 'Mettre en pause',
+    critique: 'Mettre en pause',
+    pause: 'Reprendre',
+    fini: 'Temps écoulé : ajoutez du temps pour continuer',
+  }[t.etat]);
+  marche.classList.toggle('vert', t.etat === 'attente' || t.etat === 'pause');
+  marche.disabled = t.etat === 'fini';
+
   const n = partie.penalites.length;
-  ecrire('#nb-penalites', n === 0 ? 'Aucune pénalité' : `${n} pénalité${n > 1 ? 's' : ''} (−${n * reglages.minutesPenalite} min)`);
-  const prochaine = t.debut + (numero + 1) * intervalleAnnonce();
-  ecrire('#prochaine-annonce', t.etat === 'fini' ? '' : prochaine < t.fin
-    ? `Prochaine annonce automatique à ${heure(prochaine)}`
-    : "Plus d'annonce automatique avant la fin");
+  const total = partie.penalites.reduce((somme, p) => somme + p.minutes, 0);
+  ecrire('#nb-penalites', n === 0 ? 'Aucune pénalité' : `${n} pénalité${n > 1 ? 's' : ''} (−${total} min)`);
+
+  const avantAnnonce = intervalleAnnonce() - (t.jeu % intervalleAnnonce());
+  let prochaine = '';
+  if (t.etat !== 'fini' && avantAnnonce >= t.reste) prochaine = "Plus d'annonce automatique avant la fin";
+  else if (t.etat === 'jeu' || t.etat === 'critique') prochaine = `Prochaine annonce automatique à ${heure(t.maintenant + avantAnnonce)}`;
+  else if (t.etat !== 'fini') prochaine = `Prochaine annonce après ${Math.ceil(avantAnnonce / MINUTE)} min de jeu`;
+  ecrire('#prochaine-annonce', prochaine);
+
+  ecrire('#b-fond', Sons.couchesActives().length ? 'Couper le fond sonore' : 'Lancer le fond sonore');
   $('#alerte-son').hidden = Sons.actif();
+}
+
+function reglerReste(ms) {
+  ms = Math.max(0, ms);
+  if (partie.enMarche) partie.finPrevue = Date.now() + ms;
+  else partie.resteFige = ms;
+  sauver();
+  boucle();
+}
+
+function demarrerOuPause() {
+  const t = calculer(partie);
+  if (partie.enMarche) {
+    Object.assign(partie, { enMarche: false, resteFige: t.reste, jeuAccumule: t.jeu });
+    noter('Minuteur en pause');
+  } else if (t.reste > 0) {
+    const premiereFois = !partie.lance;
+    Object.assign(partie, { lance: true, enMarche: true, finPrevue: Date.now() + t.reste, repriseA: Date.now() });
+    noter(premiereFois ? 'Minuteur démarré' : 'Minuteur relancé');
+    if (premiereFois) {
+      if (reglages.fondAuDemarrage && !Sons.couchesActives().length) lancerFond();
+      annoncer();
+    }
+  }
+  sauver();
+  boucle();
+}
+
+function ajuster(minutes) {
+  reglerReste(calculer(partie).reste + minutes * MINUTE);
+  noter(`Temps ${minutes > 0 ? '+' : '−'}${Math.abs(minutes)} min`);
+}
+
+function reglerTempsRestant() {
+  const h = Math.max(0, Number($('#i-heures').value) || 0);
+  const m = Math.max(0, Number($('#i-minutes').value) || 0);
+  reglerReste((h * 60 + m) * MINUTE);
+  noter(`Temps restant réglé sur ${h} h ${deuxChiffres(m)}`);
+}
+
+function finirA() {
+  const [h, m] = $('#i-fin').value.split(':').map(Number);
+  if (!Number.isFinite(h)) return;
+  const fin = new Date();
+  fin.setHours(h, m || 0, 0, 0);
+  if (fin <= new Date()) fin.setDate(fin.getDate() + 1); // l'heure est passée : c'est demain (ex. 2 h du matin)
+  reglerReste(fin - Date.now());
+  noter(`Fin réglée à ${$('#i-fin').value}`);
+}
+
+function reinitialiser() {
+  if (!confirm(`Remettre le minuteur à ${reglages.dureeDepart.replace(':', ' h ')}, sans pénalités, et vider le journal ?`)) return;
+  partie = partieVide(reglages);
+  derniereAnnonce = null;
+  noter('Partie réinitialisée');
+  boucle();
 }
 
 // Ex. 7 h 02 -> « 7 heures et 2 minutes ».
@@ -134,6 +232,13 @@ function enToutesLettres(ms) {
 
 let enonce = null; // gardé en mémoire : sinon Chrome peut oublier de signaler la fin
 
+// Les voix « Natural » (Edge, en ligne) sont bien plus réalistes que les voix Windows classiques.
+function meilleureVoix(voix) {
+  const score = v => (v.lang.startsWith('fr') ? 4 : 0) + (/natural|online|neural/i.test(v.name) ? 2 : 0)
+    + (/denise|eloise|vivienne|julie|hortense|female/i.test(v.name) ? 1 : 0);
+  return voix.slice().sort((a, b) => score(b) - score(a))[0] ?? null;
+}
+
 function parler(texte) {
   return new Promise(fin => {
     if (!window.speechSynthesis) return fin();
@@ -141,7 +246,7 @@ function parler(texte) {
     const voix = speechSynthesis.getVoices();
     enonce = new SpeechSynthesisUtterance(texte);
     enonce.lang = 'fr-FR';
-    enonce.voice = voix.find(v => v.voiceURI === reglages.voix) || voix.find(v => v.lang.startsWith('fr')) || null;
+    enonce.voice = voix.find(v => v.voiceURI === reglages.voix) || meilleureVoix(voix);
     enonce.pitch = reglages.hauteurVoix;
     enonce.rate = reglages.vitesseVoix;
     enonce.onend = fin;
@@ -153,12 +258,12 @@ function parler(texte) {
 
 function remplirVoix() {
   if (!window.speechSynthesis) return;
-  const voix = speechSynthesis.getVoices().slice()
-    .sort((a, b) => b.lang.startsWith('fr') - a.lang.startsWith('fr') || a.name.localeCompare(b.name));
+  const voix = speechSynthesis.getVoices();
+  const auto = meilleureVoix(voix);
   const select = $('[data-reglage="voix"]');
   select.replaceChildren(
-    new Option('Automatique (première voix française)', ''),
-    ...voix.map(v => new Option(`${v.name} (${v.lang})`, v.voiceURI)),
+    new Option(`Automatique${auto ? ` (${auto.name})` : ''}`, ''),
+    ...voix.filter(v => v.lang.startsWith('fr')).map(v => new Option(`${v.name} (${v.lang})`, v.voiceURI)),
   );
   select.value = reglages.voix;
 }
@@ -169,29 +274,31 @@ function penalite() {
   const bouton = $('#b-penalite');
   bouton.disabled = true; // évite une double pénalité sur un double-clic
   setTimeout(() => (bouton.disabled = false), 1500);
-  partie.penalites.push(Date.now());
-  noter(`Pénalité : −${reglages.minutesPenalite} min (${nomDuSon(reglages.screamer)})`);
-  signalerEcran('penalite', `−${reglages.minutesPenalite} MIN`);
+  const minutes = reglages.minutesPenalite;
+  const screamer = screamerPenalite();
+  partie.penalites.push({ t: Date.now(), minutes });
+  reglerReste(calculer(partie).reste - minutes * MINUTE);
+  noter(`Pénalité : −${minutes} min (${nomDuSon(screamer)})`);
+  signalerEcran('penalite', `−${minutes} MIN`);
   Sons.attenuer(true);
-  Sons.jouer(reglages.screamer).then(() => Sons.attenuer(false));
-  boucle();
+  Sons.jouer(screamer).then(() => Sons.attenuer(false));
 }
 
 function annulerPenalite() {
-  if (!partie.penalites.length) return;
-  partie.penalites.pop();
-  noter('Dernière pénalité annulée');
-  boucle();
+  const derniere = partie.penalites.pop();
+  if (!derniere) return;
+  reglerReste(calculer(partie).reste + derniere.minutes * MINUTE);
+  noter(`Pénalité annulée (+${derniere.minutes} min)`);
 }
 
 function indice() {
-  Sons.jouer(reglages.sonIndice);
+  Sons.jouer(sonIndice());
   signalerEcran('indice', reglages.texteIndice);
   noter('Indice disponible');
 }
 
 async function annoncer() {
-  const texte = reglages.texteAnnonce.replaceAll('{temps}', enToutesLettres(calculer(reglages, partie).reste));
+  const texte = reglages.texteAnnonce.replaceAll('{temps}', enToutesLettres(calculer(partie).reste));
   noter(`Annonce : « ${texte} »`);
   Sons.attenuer(true);
   await Promise.race([Sons.jouer(reglages.sonAvantAnnonce), attendre(4000)]);
@@ -202,15 +309,29 @@ async function annoncer() {
 async function finDePartie() {
   noter('Temps écoulé !');
   Sons.attenuer(true);
-  await Promise.race([Sons.jouer(reglages.screamer), attendre(6000)]);
+  await Promise.race([Sons.jouer(screamerPenalite()), attendre(6000)]);
   await parler('Le temps est écoulé.');
   Sons.attenuer(false);
 }
 
+// Joue tous les sons d'une catégorie à la suite (ex. un récit découpé en plusieurs fichiers).
+async function lireDansLOrdre(cat) {
+  const numero = ++lecture;
+  noter(`Lecture : ${CATEGORIES[cat].titre}`);
+  Sons.attenuer(true);
+  for (const son of sons.filter(s => s.cat === cat)) {
+    if (numero !== lecture) break;
+    await Sons.jouer(son.id);
+    await attendre(500);
+  }
+  Sons.attenuer(false);
+}
+
 function toutCouper() {
+  lecture++;
   Sons.toutCouper();
   window.speechSynthesis?.cancel();
-  afficherAmbiance();
+  afficherSons();
 }
 
 function ouvrirEcran() {
@@ -218,106 +339,120 @@ function ouvrirEcran() {
   fenetreEcran = window.open('ecran.html', 'ecran-joueurs', 'popup,width=1280,height=720');
 }
 
-function versChampDate(d) {
-  return `${d.getFullYear()}-${deuxChiffres(d.getMonth() + 1)}-${deuxChiffres(d.getDate())}T${deuxChiffres(d.getHours())}:${deuxChiffres(d.getMinutes())}`;
+// ---------- Fond sonore ----------
+
+function lancerFond() {
+  const ids = reglages.fond.filter(existe);
+  (ids.length ? ids : DEFAUTS.fond).forEach(id => Sons.demarrerCouche(id, volumeCouche(id)));
+  noter('Fond sonore lancé');
+  afficherSons();
 }
 
-function demarrerMaintenant() {
-  if (!confirm(`Démarrer la partie maintenant ? La fin reste fixée à ${heure(new Date(reglages.fin))}.`)) return;
-  const maintenant = new Date();
-  maintenant.setSeconds(0, 0);
-  reglages.debut = versChampDate(maintenant);
+function basculerFond() {
+  if (Sons.couchesActives().length) {
+    Sons.arreterFond();
+    noter('Fond sonore coupé');
+    afficherSons();
+  } else {
+    lancerFond();
+  }
+}
+
+function basculerCouche(id) {
+  if (Sons.coucheActive(id)) Sons.arreterCouche(id);
+  else Sons.demarrerCouche(id, volumeCouche(id));
+  const actives = Sons.couchesActives();
+  if (actives.length) reglages.fond = actives; // mémorise le mélange pour le relancer d'un clic
   sauver();
-  document.querySelectorAll('[data-reglage="debut"]').forEach(afficherValeur);
-  noter('Partie démarrée');
-  reglagesModifies();
-  annoncer();
-}
-
-function reinitialiser() {
-  if (!confirm('Effacer les pénalités et le journal de la partie ?')) return;
-  partie = partieVide();
-  sauver();
-  noter('Partie réinitialisée');
-  boucle();
-}
-
-// ---------- Ambiance ----------
-
-function lancerAmbiance(id) {
-  const musiques = sons.filter(s => s.cat === 'ambiance' && s.fichier);
-  const enchainer = reglages.enchainer && musiques.length > 1 && musiques.some(s => s.id === id);
-  Sons.lancerAmbiance(id, {
-    boucle: !enchainer,
-    quandFini() {
-      const suivante = musiques[(musiques.findIndex(s => s.id === id) + 1) % musiques.length];
-      lancerAmbiance(suivante.id);
-    },
-  });
-  noter(`Ambiance : ${nomDuSon(id)}`);
-  afficherAmbiance();
-}
-
-function basculerAmbiance() {
-  if (Sons.ambianceEnCours()) Sons.arreterAmbiance();
-  else lancerAmbiance(reglages.ambiance);
-  afficherAmbiance();
-}
-
-function afficherAmbiance() {
-  const id = Sons.ambianceEnCours();
-  $('#amb-actuelle').textContent = id ? `En cours : ${nomDuSon(id)}` : 'Aucune musique en cours';
-  $('#b-ambiance').textContent = id ? "Arrêter l'ambiance" : "Lancer l'ambiance";
+  afficherSons();
 }
 
 // ---------- Bibliothèque de sons ----------
 
-function bouton(texte, titre, action) {
-  const b = document.createElement('button');
-  b.textContent = texte;
-  b.title = titre;
-  b.onclick = action;
-  return b;
+function element(balise, proprietes = {}, ...enfants) {
+  const el = Object.assign(document.createElement(balise), proprietes);
+  el.append(...enfants);
+  return el;
 }
 
-function ligneSon(son, cle) {
-  const li = document.createElement('li');
-  const nom = document.createElement('span');
-  nom.className = 'nom';
-  nom.textContent = son.nom;
-  nom.title = son.nom;
-  li.append(
-    bouton('▶', son.cat === 'ambiance' ? 'Lancer comme ambiance' : 'Jouer', () =>
-      son.cat === 'ambiance' ? lancerAmbiance(son.id) : Sons.jouer(son.id)),
-    nom,
-  );
-  if (cle) {
-    const choix = document.createElement('input');
-    choix.type = 'radio';
-    choix.name = `defaut-${son.cat}`;
-    choix.title = 'Son utilisé par défaut';
-    choix.checked = reglages[cle] === son.id;
-    choix.onchange = () => {
-      reglages[cle] = son.id;
+const bouton = (texte, title, onclick) => element('button', { textContent: texte, title, onclick });
+
+function choixParDefaut(cle, valeur) {
+  return element('input', {
+    type: 'radio',
+    name: `defaut-${cle}`,
+    title: 'Son utilisé automatiquement',
+    checked: reglages[cle] === valeur,
+    onchange() {
+      reglages[cle] = valeur;
       sauver();
-    };
-    li.append(choix);
+    },
+  });
+}
+
+function ligneSon(son, categorie) {
+  const nom = element('span', { className: 'nom', textContent: son.nom, title: son.nom });
+  const li = element('li');
+  if (categorie.fond) {
+    const active = Sons.coucheActive(son.id);
+    li.classList.toggle('active', active);
+    li.append(
+      bouton(active ? '■' : '▶', active ? 'Arrêter' : 'Lancer en boucle', () => basculerCouche(son.id)),
+      nom,
+      element('input', {
+        type: 'range', min: 0, max: 1, step: 0.05, value: volumeCouche(son.id), title: 'Volume de ce son',
+        oninput(evenement) {
+          reglages.volumesCouches[son.id] = Number(evenement.target.value);
+          Sons.volumeDeCouche(son.id, reglages.volumesCouches[son.id]);
+          sauver();
+        },
+      }),
+    );
+  } else {
+    li.append(bouton('▶', 'Jouer', () => Sons.jouer(son.id)), nom);
+    if (categorie.defaut) li.append(choixParDefaut(categorie.defaut, son.id));
   }
-  if (son.fichier) {
+  if (estImporte(son)) {
+    nom.title += ' — double-cliquez pour renommer';
     nom.ondblclick = () => renommer(son);
     li.append(bouton('✕', 'Supprimer', () => supprimerSon(son)));
   }
   return li;
 }
 
-function afficherSons() {
-  for (const [cat, cle] of Object.entries(CATEGORIES)) {
-    $(`.cat[data-cat="${cat}"] ul`).replaceChildren(...sons.filter(s => s.cat === cat).map(s => ligneSon(s, cle)));
+function blocCategorie(cle, categorie) {
+  const liste = element('ul');
+  if (cle === 'screamer') {
+    liste.append(element('li', { className: 'hasard' },
+      bouton('▶', 'Jouer un screamer au hasard', () => Sons.jouer(auHasard('screamer'))),
+      element('span', { className: 'nom', textContent: 'Au hasard (un différent à chaque fois)' }),
+      choixParDefaut('screamer', 'hasard')));
   }
+  liste.append(...sons.filter(s => s.cat === cle).map(s => ligneSon(s, categorie)));
+  const entete = element('div', { className: 'entete' }, element('h3', { textContent: categorie.titre }));
+  if (categorie.enchaine) entete.append(bouton('Tout lire', 'Jouer tous les sons dans l\'ordre', () => lireDansLOrdre(cle)));
+  else if (!categorie.fond) entete.append(bouton('Au hasard', 'Jouer un son de cette catégorie au hasard', () => Sons.jouer(auHasard(cle))));
+  const ajout = element('input', { type: 'file', accept: 'audio/*', multiple: true });
+  ajout.onchange = () => {
+    importer(cle, [...ajout.files]);
+    ajout.value = '';
+  };
+  return element('div', { className: 'cat' },
+    entete,
+    ...(categorie.aide ? [element('p', { className: 'aide', textContent: categorie.aide })] : []),
+    liste,
+    element('label', { className: 'ajout' }, '+ Ajouter des sons', ajout));
+}
+
+function afficherSons() {
+  const blocs = Object.entries(CATEGORIES).map(([cle, categorie]) => [categorie, blocCategorie(cle, categorie)]);
+  $('#bibliotheque').replaceChildren(...blocs.filter(([c]) => !c.fond).map(([, bloc]) => bloc));
+  $('#fond').replaceChildren(...blocs.filter(([c]) => c.fond).map(([, bloc]) => bloc));
+
   const select = $('[data-reglage="sonAvantAnnonce"]');
   select.replaceChildren(
     new Option('Aucun', ''),
-    ...sons.filter(s => s.cat !== 'ambiance').map(s => new Option(s.nom, s.id)),
+    ...sons.filter(s => !CATEGORIES[s.cat]?.fond).map(s => new Option(`${CATEGORIES[s.cat]?.titre ?? ''} : ${s.nom}`, s.id)),
   );
   select.value = reglages.sonAvantAnnonce;
 }
@@ -339,11 +474,7 @@ async function importer(cat, fichiers) {
     }
     Sons.enregistrer(son.id, fichier);
     sons.push(son);
-    // Le premier vrai son importé remplace le son généré par défaut.
-    const cle = CATEGORIES[cat];
-    if (cle && reglages[cle].startsWith('synth:')) reglages[cle] = son.id;
   }
-  sauver();
   afficherSons();
 }
 
@@ -353,21 +484,19 @@ async function renommer(son) {
   son.nom = nom;
   await Base.ecrire(son);
   afficherSons();
-  afficherAmbiance();
 }
 
 async function supprimerSon(son) {
   if (!confirm(`Supprimer « ${son.nom} » de la bibliothèque ?`)) return;
   await Base.supprimer(son.id);
-  if (Sons.ambianceEnCours() === son.id) Sons.arreterAmbiance();
   Sons.oublier(son.id);
   sons = sons.filter(s => s !== son);
-  for (const cle of ['screamer', 'sonIndice', 'ambiance', 'sonAvantAnnonce']) {
+  for (const cle of ['screamer', 'sonIndice', 'sonAvantAnnonce']) {
     if (reglages[cle] === son.id) reglages[cle] = DEFAUTS[cle];
   }
+  reglages.fond = reglages.fond.filter(id => id !== son.id);
   sauver();
   afficherSons();
-  afficherAmbiance();
 }
 
 // ---------- Réglages ----------
@@ -382,13 +511,14 @@ function lierReglages() {
   document.querySelectorAll('[data-reglage]').forEach(champ => {
     afficherValeur(champ);
     champ.addEventListener(champ.type === 'range' ? 'input' : 'change', () => {
+      const cle = champ.dataset.reglage;
       let valeur = champ.value;
       if (champ.type === 'checkbox') valeur = champ.checked;
       if (champ.type === 'range' || champ.type === 'number') valeur = Number(champ.value);
-      const invalide = (champ.type === 'number' && !(valeur >= Number(champ.min)))
-        || (champ.type === 'datetime-local' && !valeur);
+      const invalide = (champ.type === 'number' && !(valeur >= Number(champ.min))) || (champ.type === 'time' && !valeur);
       if (invalide) return afficherValeur(champ);
-      reglages[champ.dataset.reglage] = valeur;
+      reglages[cle] = valeur;
+      if (cle === 'dureeDepart' && !partie.lance) partie.resteFige = dureeEnMs(valeur);
       sauver();
       reglagesModifies();
     });
@@ -396,20 +526,15 @@ function lierReglages() {
 }
 
 function reglagesModifies() {
-  derniereAnnonce = null; // les horaires ont pu changer : on se recale sans annoncer
-  Sons.volumes(reglages.volumeEffets, reglages.volumeAmbiance);
+  derniereAnnonce = null; // l'intervalle a pu changer : on se recale sans annoncer
+  Sons.volumes(reglages.volumeEffets, reglages.volumeFond);
   $('#l-penalite').textContent = `−${reglages.minutesPenalite} min`;
   boucle();
 }
 
 function afficherJournal() {
-  $('#journal').replaceChildren(...partie.journal.map(({ t, message }) => {
-    const li = document.createElement('li');
-    const quand = document.createElement('time');
-    quand.textContent = new Date(t).toLocaleTimeString('fr-FR');
-    li.append(quand, message);
-    return li;
-  }));
+  $('#journal').replaceChildren(...partie.journal.map(({ t, message }) =>
+    element('li', {}, element('time', { textContent: new Date(t).toLocaleTimeString('fr-FR') }), message)));
 }
 
 // Tic-tac dans un « worker » : il continue à l'heure même si la fenêtre est en arrière-plan.
@@ -424,8 +549,10 @@ function lancerHorloge() {
 }
 
 async function demarrer() {
-  Sons.reveiller();
-  document.addEventListener('pointerdown', Sons.reveiller, true);
+  for (const { cat, fichier, nom } of typeof CATALOGUE === 'undefined' ? [] : CATALOGUE) {
+    sons.push({ id: `pack:${fichier}`, nom, cat });
+    Sons.enregistrer(`pack:${fichier}`, fichier);
+  }
   try {
     const importes = (await Base.tous()).sort((a, b) => a.ajoute - b.ajoute);
     importes.forEach(son => Sons.enregistrer(son.id, son.fichier));
@@ -434,30 +561,32 @@ async function demarrer() {
     noter(`Impossible de relire les sons importés : ${erreur?.message ?? erreur}`);
   }
 
+  const reste = calculer(partie).reste;
+  $('#i-heures').value = Math.floor(reste / 3600000);
+  $('#i-minutes').value = Math.floor((reste % 3600000) / MINUTE);
+
   lierReglages();
   afficherSons();
   remplirVoix();
   window.speechSynthesis?.addEventListener('voiceschanged', remplirVoix);
   afficherJournal();
-  afficherAmbiance();
   reglagesModifies();
 
+  $('#b-marche').onclick = demarrerOuPause;
+  $('#b-regler').onclick = reglerTempsRestant;
+  $('#b-finir').onclick = finirA;
+  $('#b-reinitialiser').onclick = reinitialiser;
   $('#b-ecran').onclick = ouvrirEcran;
   $('#b-penalite').onclick = penalite;
   $('#b-annuler').onclick = annulerPenalite;
   $('#b-indice').onclick = indice;
   $('#b-annonce').onclick = annoncer;
   $('#b-stop').onclick = toutCouper;
-  $('#b-ambiance').onclick = basculerAmbiance;
-  $('#b-demarrer').onclick = demarrerMaintenant;
-  $('#b-reinitialiser').onclick = reinitialiser;
-  document.querySelectorAll('.cat input[type="file"]').forEach(champ => {
-    champ.onchange = () => {
-      importer(champ.closest('.cat').dataset.cat, [...champ.files]);
-      champ.value = '';
-    };
-  });
+  $('#b-fond').onclick = basculerFond;
+  document.querySelectorAll('[data-ajuster]').forEach(b => (b.onclick = () => ajuster(Number(b.dataset.ajuster))));
 
+  Sons.reveiller();
+  document.addEventListener('pointerdown', Sons.reveiller, true);
   // Empêche l'ordinateur de se mettre en veille tant que la régie est affichée.
   const resterEveille = () => navigator.wakeLock?.request('screen').catch(() => {});
   resterEveille();
