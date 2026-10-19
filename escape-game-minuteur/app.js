@@ -6,17 +6,19 @@ const $ = selecteur => document.querySelector(selecteur);
 // Catégories de sons. `defaut` : réglage qui mémorise le son utilisé automatiquement.
 // `fond` : sons qui tournent en boucle et peuvent se superposer.
 const CATEGORIES = {
-  screamer: { titre: 'Screamers', aide: 'Le son coché part à chaque pénalité.', defaut: 'screamer' },
-  indice: { titre: 'Indice disponible', aide: 'Le son coché part avec le bouton « Indice ».', defaut: 'sonIndice' },
-  rire: { titre: 'Rires' },
-  chuchotement: { titre: 'Chuchotements' },
-  porte: { titre: 'Portes et coups' },
-  bruitage: { titre: 'Autres bruitages' },
-  recit: { titre: 'Récits et voix', aide: 'Vos enregistrements. « Tout lire » les enchaîne dans l\'ordre.', enchaine: true },
-  ambiance: { titre: 'Ambiances', fond: true },
-  horloge: { titre: 'Horloges (tic-tac)', fond: true },
-  enigme: { titre: 'Énigmes sonores (en boucle)', fond: true },
+  screamer: { titre: 'Screamers', court: 'Screamers', defaut: 'screamer',
+    aide: '⚡ jump scare · ★ vrai enregistrement · rond coché = son de la pénalité · curseur = volume du son' },
+  indice: { titre: 'Indice disponible', court: 'Indice', defaut: 'sonIndice', aide: 'Rond coché = son du bouton « Indice ».' },
+  rire: { titre: 'Rires', court: 'Rires' },
+  chuchotement: { titre: 'Chuchotements', court: 'Chuchotements' },
+  porte: { titre: 'Portes et coups', court: 'Portes' },
+  bruitage: { titre: 'Autres bruitages', court: 'Bruitages' },
+  recit: { titre: 'Récits et voix', court: 'Récits', enchaine: true, aide: '« Tout lire » enchaîne les récits dans l\'ordre.' },
+  ambiance: { titre: 'Ambiances', court: 'Ambiances', fond: true },
+  horloge: { titre: 'Horloges (tic-tac)', court: 'Horloges', fond: true },
+  enigme: { titre: 'Énigmes sonores (en boucle)', court: 'Énigmes', fond: true },
 };
+const ONGLETS = Object.keys(CATEGORIES).filter(cle => !CATEGORIES[cle].fond);
 
 let reglages = charger(CLE_REGLAGES, DEFAUTS);
 reglages.fond = [...reglages.fond];
@@ -37,6 +39,7 @@ let derniereAnnonce = null; // numéro de la dernière annonce passée (null = �
 let fenetreEcran = null;
 let lecture = 0; // numéro de la lecture enchaînée en cours (changé pour l'interrompre)
 let lectureActive = false;
+let onglet = 'screamer'; // catégorie affichée dans la bibliothèque
 const derniersTirages = {};
 
 const heure = ms => new Date(ms).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -46,7 +49,10 @@ const existe = id => sons.some(s => s.id === id);
 const estImporte = son => son.id.startsWith('f:');
 const estReel = son => son.reel || estImporte(son); // vrai enregistrement (fourni ou importé)
 const intervalleAnnonce = () => Math.max(1, reglages.minutesAnnonce) * MINUTE;
-const volumeCouche = id => reglages.volumesCouches[id] ?? 0.8;
+// Volume propre de chaque son (0 à 1) ; la bande continue démarre un peu plus bas.
+const volumeSon = id => reglages.volumesCouches[id] ?? (CATEGORIES[sons.find(s => s.id === id)?.cat]?.fond ? 0.8 : 1);
+const groupeDe = id => (sons.find(s => s.id === id)?.cat === 'screamer' ? 'screamers' : 'effets');
+const jouerSon = id => Sons.jouer(id, { groupe: groupeDe(id), volume: volumeSon(id) });
 
 function sauver() {
   localStorage.setItem(CLE_REGLAGES, JSON.stringify(reglages));
@@ -162,14 +168,15 @@ function afficherEnCours() {
     const son = sons.find(x => x.id === s.id);
     lignes.push({
       cle: `son${s.cle}`,
+      id: s.id,
       nom: son?.nom ?? 'son',
-      detail: `${CATEGORIES[son?.cat]?.titre ?? ''} · ${minSec(s.position)} / ${minSec(s.duree)}`,
+      detail: `${CATEGORIES[son?.cat]?.court ?? ''} · ${minSec(s.position)} / ${minSec(s.duree)}`,
       arreter: () => Sons.arreterSon(s.cle),
     });
   }
   for (const id of Sons.couchesActives()) {
     const son = sons.find(x => x.id === id);
-    lignes.push({ cle: `couche${id}`, nom: son?.nom ?? 'son', detail: `${CATEGORIES[son?.cat]?.titre ?? ''} · en boucle`,
+    lignes.push({ cle: `couche${id}`, id, nom: son?.nom ?? 'son', detail: `${CATEGORIES[son?.cat]?.court ?? ''} · en boucle`,
       arreter: () => basculerCouche(id) });
   }
 
@@ -183,6 +190,7 @@ function afficherEnCours() {
     liste.replaceChildren(...lignes.map(l => element('li', {},
       element('span', { className: 'nom', textContent: l.nom, title: l.nom }),
       element('span', { className: 'detail' }),
+      l.id ? curseurVolume(l.id) : element('span'),
       bouton('■ Arrêter', 'Arrêter ce son', () => arretsEnCours.get(l.cle)?.()))));
   }
   [...liste.children].forEach((li, i) => {
@@ -230,7 +238,7 @@ function afficherStatut(t) {
   else if (t.etat !== 'fini') prochaine = `Prochaine annonce après ${Math.ceil(avantAnnonce / MINUTE)} min de jeu`;
   ecrire('#prochaine-annonce', prochaine);
 
-  ecrire('#b-fond', Sons.couchesActives().length ? 'Couper le fond sonore' : 'Lancer le fond sonore');
+  ecrire('#b-fond', Sons.couchesActives().length ? 'Tout couper' : 'Lancer');
   $('#alerte-son').hidden = Sons.actif();
 }
 
@@ -355,7 +363,7 @@ function penalite() {
   noter(`Pénalité : −${minutes} min (${nomDuSon(screamer)})`);
   signalerEcran('penalite', `−${minutes} MIN`);
   Sons.attenuer(true);
-  Sons.jouer(screamer).then(() => Sons.attenuer(false));
+  jouerSon(screamer).then(() => Sons.attenuer(false));
 }
 
 function annulerPenalite() {
@@ -366,7 +374,7 @@ function annulerPenalite() {
 }
 
 function indice() {
-  Sons.jouer(sonIndice());
+  jouerSon(sonIndice());
   signalerEcran('indice', reglages.texteIndice);
   noter('Indice disponible');
 }
@@ -375,7 +383,7 @@ async function annoncer() {
   const texte = reglages.texteAnnonce.replaceAll('{temps}', enToutesLettres(calculer(partie).reste));
   noter(`Annonce : « ${texte} »`);
   Sons.attenuer(true);
-  await Promise.race([Sons.jouer(reglages.sonAvantAnnonce), attendre(4000)]);
+  await Promise.race([jouerSon(reglages.sonAvantAnnonce), attendre(4000)]);
   await parler(texte);
   Sons.attenuer(false);
 }
@@ -383,7 +391,7 @@ async function annoncer() {
 async function finDePartie() {
   noter('Temps écoulé !');
   Sons.attenuer(true);
-  await Promise.race([Sons.jouer(screamerPenalite()), attendre(6000)]);
+  await Promise.race([jouerSon(screamerPenalite()), attendre(6000)]);
   await parler('Le temps est écoulé.');
   Sons.attenuer(false);
 }
@@ -396,7 +404,7 @@ async function lireDansLOrdre(cat) {
   Sons.attenuer(true);
   for (const son of sons.filter(s => s.cat === cat)) {
     if (numero !== lecture) break;
-    await Sons.jouer(son.id);
+    await jouerSon(son.id);
     await attendre(500);
   }
   if (numero === lecture) lectureActive = false;
@@ -416,7 +424,7 @@ function toutCouper() {
   lectureActive = false;
   Sons.toutCouper();
   window.speechSynthesis?.cancel();
-  afficherSons();
+  afficherFond();
 }
 
 function ouvrirEcran() {
@@ -520,16 +528,16 @@ function brancherMicro() {
 
 function lancerFond() {
   const ids = reglages.fond.filter(existe);
-  (ids.length ? ids : DEFAUTS.fond).forEach(id => Sons.demarrerCouche(id, volumeCouche(id)));
-  noter('Fond sonore lancé');
-  afficherSons();
+  (ids.length ? ids : DEFAUTS.fond).forEach(id => Sons.demarrerCouche(id, volumeSon(id)));
+  noter('Bande continue lancée');
+  afficherFond();
 }
 
 function basculerFond() {
   if (Sons.couchesActives().length) {
     Sons.arreterFond();
-    noter('Fond sonore coupé');
-    afficherSons();
+    noter('Bande continue coupée');
+    afficherFond();
   } else {
     lancerFond();
   }
@@ -537,11 +545,11 @@ function basculerFond() {
 
 function basculerCouche(id) {
   if (Sons.coucheActive(id)) Sons.arreterCouche(id);
-  else Sons.demarrerCouche(id, volumeCouche(id));
+  else Sons.demarrerCouche(id, volumeSon(id));
   const actives = Sons.couchesActives();
   if (actives.length) reglages.fond = actives; // mémorise le mélange pour le relancer d'un clic
   sauver();
-  afficherSons();
+  afficherFond();
 }
 
 // ---------- Bibliothèque de sons ----------
@@ -567,78 +575,108 @@ function choixParDefaut(cle, valeur) {
   });
 }
 
-function ligneSon(son, categorie) {
-  const nom = element('span', { className: 'nom', textContent: son.nom, title: son.nom });
-  const li = element('li');
+// Curseur de volume d'un son ; tous les curseurs du même son restent synchronisés.
+function curseurVolume(id) {
+  const curseur = element('input', {
+    type: 'range', min: 0, max: 1, step: 0.05, value: volumeSon(id), title: 'Volume de ce son',
+    oninput() {
+      reglages.volumesCouches[id] = Number(curseur.value);
+      Sons.reglerVolumeSon(id, Number(curseur.value));
+      document.querySelectorAll('input[data-son]').forEach(autre => {
+        if (autre !== curseur && autre.dataset.son === id) autre.value = curseur.value;
+      });
+      sauver();
+    },
+  });
+  curseur.setAttribute('data-son', id);
+  return curseur;
+}
+
+function boutonAjout(cat, texte = '+ Ajouter des sons') {
+  const champ = element('input', { type: 'file', accept: 'audio/*', multiple: true });
+  champ.onchange = () => {
+    importer(cat, [...champ.files]);
+    champ.value = '';
+  };
+  return element('label', { className: 'ajout', title: 'Ajouter des fichiers audio (MP3, WAV, OGG, M4A)' }, texte, champ);
+}
+
+function ligneSon(son) {
+  const categorie = CATEGORIES[son.cat] ?? {};
+  const li = element('li', { className: son.terrifiant ? 'son terrifiant' : 'son' });
+  const jouer = element('button', { className: 'jouer', textContent: son.nom, title: son.nom });
   if (categorie.fond) {
     const active = Sons.coucheActive(son.id);
     li.classList.toggle('active', active);
-    li.append(
-      bouton(active ? '■' : '▶', active ? 'Arrêter' : 'Lancer en boucle', () => basculerCouche(son.id)),
-      nom,
-      element('input', {
-        type: 'range', min: 0, max: 1, step: 0.05, value: volumeCouche(son.id), title: 'Volume de ce son',
-        oninput(evenement) {
-          reglages.volumesCouches[son.id] = Number(evenement.target.value);
-          Sons.volumeDeCouche(son.id, reglages.volumesCouches[son.id]);
-          sauver();
-        },
-      }),
-    );
+    jouer.title += active ? ' — cliquer pour arrêter' : ' — cliquer pour lancer en boucle';
+    jouer.onclick = () => basculerCouche(son.id);
   } else {
-    li.append(bouton('▶', 'Jouer', () => Sons.jouer(son.id)), nom);
-    if (categorie.defaut) li.append(choixParDefaut(categorie.defaut, son.id));
+    jouer.onclick = () => jouerSon(son.id);
   }
+  li.append(jouer);
+  if (categorie.defaut) li.append(choixParDefaut(categorie.defaut, son.id));
+  li.append(curseurVolume(son.id));
   if (estImporte(son)) {
-    nom.title += ' — double-cliquez pour renommer';
-    nom.ondblclick = () => renommer(son);
-    li.append(bouton('✕', 'Supprimer', () => supprimerSon(son)));
+    jouer.title += ' — clic droit : renommer';
+    jouer.oncontextmenu = evenement => {
+      evenement.preventDefault();
+      renommer(son);
+    };
+    li.append(element('button', { className: 'supprimer', textContent: '✕', title: 'Supprimer', onclick: () => supprimerSon(son) }));
   }
   return li;
 }
 
-function blocCategorie(cle, categorie) {
-  const liste = element('ul');
-  if (cle === 'screamer') {
-    liste.append(
-      element('li', { className: 'hasard' },
-        bouton('▶', 'Jouer un jump scare au hasard', () => Sons.jouer(auHasard('screamer', FILTRES_HASARD['hasard-terrifiants']))),
-        element('span', { className: 'nom', textContent: 'Au hasard parmi les jump scares terrifiants' }),
-        choixParDefaut('screamer', 'hasard-terrifiants')),
-      element('li', { className: 'hasard' },
-        bouton('▶', 'Jouer un vrai cri au hasard', () => Sons.jouer(auHasard('screamer', estReel))),
-        element('span', { className: 'nom', textContent: 'Au hasard parmi les vrais cris' }),
-        choixParDefaut('screamer', 'hasard-reels')),
-      element('li', { className: 'hasard' },
-        bouton('▶', 'Jouer un screamer au hasard', () => Sons.jouer(auHasard('screamer'))),
-        element('span', { className: 'nom', textContent: 'Au hasard parmi tous' }),
-        choixParDefaut('screamer', 'hasard')));
-  }
-  liste.append(...sons.filter(s => s.cat === cle).map(s => ligneSon(s, categorie)));
-  const entete = element('div', { className: 'entete' }, element('h3', { textContent: categorie.titre }));
-  if (categorie.enchaine) entete.append(bouton('Tout lire', 'Jouer tous les sons dans l\'ordre', () => lireDansLOrdre(cle)));
-  else if (!categorie.fond) entete.append(bouton('Au hasard', 'Jouer un son de cette catégorie au hasard', () => Sons.jouer(auHasard(cle, cle === 'screamer' ? FILTRES_HASARD['hasard-terrifiants'] : null))));
-  const ajout = element('input', { type: 'file', accept: 'audio/*', multiple: true });
-  ajout.onchange = () => {
-    importer(cle, [...ajout.files]);
-    ajout.value = '';
-  };
-  return element('div', { className: 'cat' },
-    entete,
-    ...(categorie.aide ? [element('p', { className: 'aide', textContent: categorie.aide })] : []),
-    liste,
-    element('label', { className: 'ajout' }, '+ Ajouter des sons', ajout));
+function ligneHasard(valeur, texte) {
+  return element('li', { className: 'son hasard' },
+    element('button', { className: 'jouer', textContent: texte, title: 'Écouter un exemple',
+      onclick: () => jouerSon(auHasard('screamer', FILTRES_HASARD[valeur])) }),
+    choixParDefaut('screamer', valeur));
+}
+
+function afficherOnglets() {
+  $('#onglets').replaceChildren(...ONGLETS.map(cle => element('button', {
+    className: cle === onglet ? 'actif' : '',
+    onclick() {
+      onglet = cle;
+      afficherOnglets();
+      afficherPads();
+    },
+  }, CATEGORIES[cle].court, element('span', { className: 'compte', textContent: sons.filter(s => s.cat === cle).length }))));
+}
+
+function afficherPads() {
+  const categorie = CATEGORIES[onglet];
+  const action = categorie.enchaine
+    ? bouton('Tout lire dans l\'ordre', 'Jouer tous les récits à la suite', () => lireDansLOrdre(onglet))
+    : bouton('Au hasard', 'Jouer un son de cette catégorie au hasard',
+      () => jouerSon(auHasard(onglet, onglet === 'screamer' ? FILTRES_HASARD['hasard-terrifiants'] : null)));
+  $('#barre-onglet').replaceChildren(action,
+    element('p', { className: 'aide', textContent: categorie.aide ?? '★ vrai enregistrement · cliquez sur un son pour le jouer · curseur = volume du son' }),
+    boutonAjout(onglet));
+  const lignes = onglet === 'screamer'
+    ? [ligneHasard('hasard-terrifiants', 'Pénalité : un jump scare ⚡ au hasard'),
+      ligneHasard('hasard-reels', 'Pénalité : un vrai cri ★ au hasard'),
+      ligneHasard('hasard', "Pénalité : n'importe quel screamer")]
+    : [];
+  $('#pads').replaceChildren(...lignes, ...sons.filter(s => s.cat === onglet).map(ligneSon));
+}
+
+function afficherFond() {
+  $('#fond').replaceChildren(...Object.entries(CATEGORIES).filter(([, c]) => c.fond).flatMap(([cle, c]) => [
+    element('h3', {}, c.court, boutonAjout(cle, '+')),
+    element('ul', { className: 'pads-fond' }, ...sons.filter(s => s.cat === cle).map(ligneSon)),
+  ]));
 }
 
 function afficherSons() {
-  const blocs = Object.entries(CATEGORIES).map(([cle, categorie]) => [categorie, blocCategorie(cle, categorie)]);
-  $('#bibliotheque').replaceChildren(...blocs.filter(([c]) => !c.fond).map(([, bloc]) => bloc));
-  $('#fond').replaceChildren(...blocs.filter(([c]) => c.fond).map(([, bloc]) => bloc));
-
+  afficherOnglets();
+  afficherPads();
+  afficherFond();
   const select = $('[data-reglage="sonAvantAnnonce"]');
   select.replaceChildren(
     new Option('Aucun', ''),
-    ...sons.filter(s => !CATEGORIES[s.cat]?.fond).map(s => new Option(`${CATEGORIES[s.cat]?.titre ?? ''} : ${s.nom}`, s.id)),
+    ...sons.filter(s => !CATEGORIES[s.cat]?.fond).map(s => new Option(`${CATEGORIES[s.cat]?.court ?? ''} : ${s.nom}`, s.id)),
   );
   select.value = reglages.sonAvantAnnonce;
 }
@@ -713,7 +751,7 @@ function lierReglages() {
 
 function reglagesModifies() {
   derniereAnnonce = null; // l'intervalle a pu changer : on se recale sans annoncer
-  Sons.volumes(reglages.volumeEffets, reglages.volumeFond);
+  Sons.volumes({ fond: reglages.volumeFond, screamers: reglages.volumeScreamers, effets: reglages.volumeEffets });
   if (Micro.effet() !== reglages.effetVoix) Micro.choisirEffet(reglages.effetVoix);
   Micro.volume(reglages.volumeVoix);
   $('#l-penalite').textContent = `−${reglages.minutesPenalite} min`;
@@ -747,7 +785,7 @@ async function demarrer() {
   ];
   for (const [catalogue, { reel, terrifiant = false }] of catalogues) {
     for (const { cat, fichier, nom } of catalogue) {
-      const libelle = terrifiant ? `JUMP SCARE — ${nom}` : reel && cat !== 'recit' ? `${nom} (réel)` : nom;
+      const libelle = terrifiant ? `⚡ ${nom}` : reel && cat !== 'recit' ? `★ ${nom}` : nom; // ⚡ jump scare, ★ vrai son
       sons.push({ id: `pack:${fichier}`, nom: libelle, cat, reel, terrifiant });
       Sons.enregistrer(`pack:${fichier}`, fichier);
     }
@@ -780,8 +818,9 @@ async function demarrer() {
   $('#b-annuler').onclick = annulerPenalite;
   $('#b-indice').onclick = indice;
   $('#b-annonce').onclick = annoncer;
-  $('#b-stop').onclick = toutCouper;
   $('#b-stop-tout').onclick = toutCouper;
+  $('#b-reglages').onclick = () => $('#tiroir').showModal();
+  $('#b-fermer-tiroir').onclick = () => $('#tiroir').close();
   brancherMicro();
   $('#b-fond').onclick = basculerFond;
   document.querySelectorAll('[data-ajuster]').forEach(b => (b.onclick = () => ajuster(Number(b.dataset.ajuster))));

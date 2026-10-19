@@ -18,6 +18,7 @@ const DEFAUTS = {
   hauteurVoix: 0.8,
   vitesseVoix: 0.9,
   volumeEffets: 1,
+  volumeScreamers: 1,
   volumeFond: 0.7,
   screamer: 'hasard-terrifiants',
   sonIndice: 'pack:sons/indice/boite-a-musique.ogg',

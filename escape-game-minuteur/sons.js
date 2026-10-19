@@ -1,20 +1,21 @@
 'use strict';
 // Moteur audio de la régie. Chaque son est un lecteur audio dont on règle le volume :
-// sons ponctuels (screamers, rires…) et couches de fond sonore qui tournent en boucle,
+// sons ponctuels (screamers, rires…) et couches de la bande continue qui tournent en boucle,
 // plusieurs à la fois, baissées automatiquement pendant les annonces et les screamers.
+// Volume entendu = volume général du groupe (bande continue, screamers, autres sons) × volume du son.
 
 const Sons = (() => {
   const urls = new Map(); // id du son -> URL du fichier
-  const enCours = new Map(); // numéro -> { id, audio, arreter } : sons ponctuels en cours
+  const enCours = new Map(); // numéro -> { id, audio, groupe, volume, arreter } : sons ponctuels en cours
   let numero = 0;
-  const couches = new Map(); // id -> { audio, volume } : fond sonore en cours
-  let volEffets = 1;
-  let volFond = 0.7;
+  const couches = new Map(); // id -> { audio, volume } : bande continue en cours
+  const generaux = { fond: 0.7, screamers: 1, effets: 1 };
   let attenuations = 0;
   let actif = false;
 
   const borne = v => Math.min(1, Math.max(0, v));
-  const volumeCouche = couche => borne(volFond * couche.volume * (attenuations > 0 ? 0.25 : 1));
+  const volumeCouche = couche => borne(generaux.fond * couche.volume * (attenuations > 0 ? 0.25 : 1));
+  const volumeSon = son => borne((generaux[son.groupe] ?? 1) * son.volume);
 
   function fondu(audio, cible, ms, puis) {
     clearInterval(audio.fondu);
@@ -58,21 +59,22 @@ const Sons = (() => {
   }
 
   // Joue un son une fois ; la promesse se résout quand il est fini.
-  function jouer(id) {
+  function jouer(id, { groupe = 'effets', volume = 1 } = {}) {
     return new Promise(fin => {
       if (!urls.has(id)) return fin();
       const audio = new Audio(urls.get(id));
-      audio.volume = borne(volEffets);
       const cle = ++numero;
-      const arreter = () => {
+      const son = { id, audio, groupe, volume };
+      son.arreter = () => {
         audio.pause();
         enCours.delete(cle);
         fin();
       };
-      audio.onended = arreter;
-      audio.onerror = arreter;
-      enCours.set(cle, { id, audio, arreter });
-      audio.play().then(() => (actif = true), arreter);
+      audio.volume = volumeSon(son);
+      audio.onended = son.arreter;
+      audio.onerror = son.arreter;
+      enCours.set(cle, son);
+      audio.play().then(() => (actif = true), son.arreter);
     });
   }
 
@@ -116,12 +118,19 @@ const Sons = (() => {
     arreterSon: cle => enCours.get(cle)?.arreter(),
     coucheActive: id => couches.has(id),
     couchesActives: () => [...couches.keys()],
-    volumeDeCouche(id, volume) {
+    // Volume propre d'un son (0 à 1), appliqué tout de suite s'il est en train de jouer.
+    reglerVolumeSon(id, volume) {
+      enCours.forEach(son => {
+        if (son.id !== id) return;
+        son.volume = volume;
+        son.audio.volume = volumeSon(son);
+      });
       const couche = couches.get(id);
-      if (!couche) return;
-      couche.volume = volume;
-      clearInterval(couche.audio.fondu);
-      couche.audio.volume = volumeCouche(couche);
+      if (couche) {
+        couche.volume = volume;
+        clearInterval(couche.audio.fondu);
+        couche.audio.volume = volumeCouche(couche);
+      }
     },
     arreterFond() {
       [...couches.keys()].forEach(arreterCouche);
@@ -130,9 +139,10 @@ const Sons = (() => {
       [...enCours.values()].forEach(son => son.arreter());
       [...couches.keys()].forEach(arreterCouche);
     },
-    volumes(effets, fond) {
-      volEffets = effets;
-      volFond = fond;
+    // Volumes généraux : { fond, screamers, effets }.
+    volumes(nouveaux) {
+      Object.assign(generaux, nouveaux);
+      enCours.forEach(son => (son.audio.volume = volumeSon(son)));
       appliquerFond(300);
     },
     attenuer(oui) {

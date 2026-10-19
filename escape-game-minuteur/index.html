@@ -11,116 +11,132 @@
 
   <header>
     <h1>Régie — Escape game</h1>
-    <div id="horloge">--:--:--</div>
+    <div class="outils">
+      <button id="b-ecran" title="Glissez la fenêtre sur la télé, puis double-cliquez dedans pour le plein écran">Écran des joueurs</button>
+      <button id="b-reglages">Réglages et journal</button>
+      <div id="horloge">--:--:--</div>
+    </div>
   </header>
 
   <main>
-    <section class="carte">
-      <h2>Minuteur</h2>
-      <iframe id="apercu" src="ecran.html?apercu" title="Aperçu de l'écran des joueurs" tabindex="-1"></iframe>
-      <p id="statut"></p>
-      <button id="b-marche" class="gros vert">Démarrer le minuteur</button>
-      <div class="ajustements">
-        <button data-ajuster="-10">−10 min</button>
-        <button data-ajuster="-5">−5 min</button>
-        <button data-ajuster="-1">−1 min</button>
-        <button data-ajuster="1">+1 min</button>
-        <button data-ajuster="5">+5 min</button>
-        <button data-ajuster="10">+10 min</button>
-      </div>
-      <div class="ligne">
-        <span>Temps restant :</span>
-        <input type="number" id="i-heures" min="0" max="23" value="8" aria-label="Heures"> h
-        <input type="number" id="i-minutes" min="0" max="59" value="0" aria-label="Minutes"> min
-        <button id="b-regler">Régler</button>
-      </div>
-      <div class="ligne">
-        <span>Ou finir à :</span>
-        <input type="time" id="i-fin" value="02:00" aria-label="Heure de fin">
-        <button id="b-finir">Régler</button>
-      </div>
-      <div class="ligne">
-        <button id="b-ecran">Ouvrir l'écran des joueurs</button>
-        <button id="b-reinitialiser" class="discret">Réinitialiser</button>
-      </div>
-      <p class="aide">Glissez l'écran des joueurs sur la télé, puis double-cliquez dedans pour le plein écran.</p>
+    <div class="colonne" id="gauche">
+      <section class="carte">
+        <iframe id="apercu" src="ecran.html?apercu" title="Aperçu de l'écran des joueurs" tabindex="-1"></iframe>
+        <p id="statut"></p>
+        <button id="b-marche" class="gros vert">Démarrer le minuteur</button>
+        <div class="ajustements">
+          <button data-ajuster="-10">−10</button>
+          <button data-ajuster="-5">−5</button>
+          <button data-ajuster="-1">−1</button>
+          <button data-ajuster="1">+1</button>
+          <button data-ajuster="5">+5</button>
+          <button data-ajuster="10">+10</button>
+        </div>
+        <div class="ligne">
+          <span class="etiquette">Restant</span>
+          <input type="number" id="i-heures" min="0" max="23" value="8" aria-label="Heures"> h
+          <input type="number" id="i-minutes" min="0" max="59" value="0" aria-label="Minutes"> min
+          <button id="b-regler">Régler</button>
+        </div>
+        <div class="ligne">
+          <span class="etiquette">Fin à</span>
+          <input type="time" id="i-fin" value="02:00" aria-label="Heure de fin">
+          <button id="b-finir">Régler</button>
+        </div>
+      </section>
+
+      <section class="carte">
+        <button id="b-penalite" class="gros danger">Pénalité <span id="l-penalite">−7 min</span></button>
+        <div class="ligne">
+          <span id="nb-penalites">Aucune pénalité</span>
+          <button id="b-annuler">Annuler la dernière</button>
+        </div>
+        <div class="deux">
+          <button id="b-indice">Indice disponible</button>
+          <button id="b-annonce">Annoncer le temps</button>
+        </div>
+        <p class="aide" id="prochaine-annonce"></p>
+      </section>
+
+      <section class="carte" id="carte-micro">
+        <h2>Micro — voix déformée</h2>
+        <button id="b-micro-activer">Activer le micro</button>
+        <div id="micro-commandes" hidden>
+          <button id="b-parler" class="gros" title="Raccourci : maintenir la barre Espace">Maintenir pour parler</button>
+          <div class="jauge" title="Niveau du micro"><div id="micro-niveau"></div></div>
+          <div class="deux">
+            <select data-reglage="effetVoix" id="s-effet-voix" aria-label="Effet sur la voix"></select>
+            <input type="range" min="0" max="1.5" step="0.05" data-reglage="volumeVoix" title="Volume de la voix" aria-label="Volume de la voix">
+          </div>
+          <label class="case"><input type="checkbox" id="i-micro-verrou"> Rester en direct (un clic allume, un clic coupe)</label>
+        </div>
+      </section>
+    </div>
+
+    <section class="carte" id="bibliotheque">
+      <nav class="onglets" id="onglets" aria-label="Catégories de sons"></nav>
+      <div class="barre-onglet" id="barre-onglet"></div>
+      <ul class="pads" id="pads"></ul>
     </section>
 
-    <section class="carte">
-      <h2>Actions</h2>
-      <button id="b-penalite" class="gros danger">Pénalité <span id="l-penalite">−7 min</span></button>
-      <div class="ligne">
-        <span id="nb-penalites">Aucune pénalité</span>
-        <button id="b-annuler">Annuler la dernière</button>
-      </div>
-      <button id="b-indice" class="gros">Indice disponible</button>
-      <button id="b-annonce">Annoncer le temps restant maintenant</button>
-      <p class="aide" id="prochaine-annonce"></p>
-      <button id="b-stop" class="discret">Couper tous les sons</button>
-    </section>
+    <div class="colonne" id="droite">
+      <section class="carte">
+        <h2>Volumes généraux</h2>
+        <label class="curseur">Bande continue <input type="range" min="0" max="1" step="0.05" data-reglage="volumeFond"></label>
+        <label class="curseur">Screamers <input type="range" min="0" max="1" step="0.05" data-reglage="volumeScreamers"></label>
+        <label class="curseur">Autres sons <input type="range" min="0" max="1" step="0.05" data-reglage="volumeEffets"></label>
+      </section>
 
-    <section class="carte" id="carte-micro">
-      <h2>Micro — voix déformée</h2>
-      <button id="b-micro-activer" class="gros">Activer le micro</button>
-      <div id="micro-commandes" hidden>
-        <button id="b-parler" class="gros">Maintenir pour parler</button>
-        <label class="case"><input type="checkbox" id="i-micro-verrou"> Rester en direct sans maintenir (un clic allume, un clic coupe)</label>
-        <div class="jauge" title="Niveau du micro"><div id="micro-niveau"></div></div>
-        <label>Effet sur la voix <select data-reglage="effetVoix" id="s-effet-voix"></select></label>
-        <label>Volume de la voix <input type="range" min="0" max="1.5" step="0.05" data-reglage="volumeVoix"></label>
-        <label>Micro utilisé <select id="s-micro"></select></label>
-      </div>
-      <p class="aide">Raccourci : maintenir la barre Espace pour parler. Le fond sonore baisse pendant que vous parlez. Pour éviter le larsen, utilisez un casque-micro ou éloignez le micro de la barre de son.</p>
-    </section>
+      <section class="carte extensible">
+        <div class="entete">
+          <h2>Bande continue</h2>
+          <button id="b-fond">Lancer</button>
+        </div>
+        <div id="fond" class="defilant"></div>
+      </section>
 
-    <section class="carte">
-      <h2>Fond sonore</h2>
-      <p class="aide">Plusieurs ambiances et horloges peuvent tourner en même temps. ▶ / ■ pour chacune, avec son propre volume.</p>
-      <button id="b-fond" class="gros">Lancer le fond sonore</button>
-      <label class="case"><input type="checkbox" data-reglage="fondAuDemarrage"> Le lancer au démarrage du minuteur</label>
-      <label>Volume du fond sonore <input type="range" min="0" max="1" step="0.05" data-reglage="volumeFond"></label>
-      <label>Volume des effets (screamers, rires…) <input type="range" min="0" max="1" step="0.05" data-reglage="volumeEffets"></label>
-      <div id="fond"></div>
-    </section>
-
-    <section class="carte large">
-      <h2>Bibliothèque de sons</h2>
-      <p class="aide">▶ joue le son dans la pièce, « Au hasard » en choisit un. Le rond coché est utilisé automatiquement. Double-cliquez sur un son importé pour le renommer. Formats : MP3, WAV, OGG, M4A.</p>
-      <div class="categories" id="bibliotheque"></div>
-    </section>
-
-    <section class="carte">
-      <h2>Réglages</h2>
-      <div class="grille">
-        <label>Durée au départ (h:min) <input type="time" data-reglage="dureeDepart"></label>
-        <label>Minutes par pénalité <input type="number" min="1" max="120" data-reglage="minutesPenalite"></label>
-        <label>Annonce toutes les (min) <input type="number" min="1" max="600" data-reglage="minutesAnnonce"></label>
-      </div>
-      <label>Phrase de l'annonce ({temps} = temps restant) <input type="text" data-reglage="texteAnnonce"></label>
-      <label>Son joué juste avant l'annonce <select data-reglage="sonAvantAnnonce"></select></label>
-      <label>Voix des annonces <select data-reglage="voix"></select></label>
-      <p class="aide">Les voix « Online (Natural) » d'Edge sont les plus naturelles (connexion Internet nécessaire).</p>
-      <div class="grille">
-        <label>Voix grave ↔ aiguë <input type="range" min="0" max="2" step="0.1" data-reglage="hauteurVoix"></label>
-        <label>Vitesse de la voix <input type="range" min="0.5" max="1.5" step="0.05" data-reglage="vitesseVoix"></label>
-      </div>
-      <label>Texte affiché à l'écran pour un indice <input type="text" data-reglage="texteIndice"></label>
-    </section>
-
-    <section class="carte">
-      <h2>Journal</h2>
-      <ol id="journal"></ol>
-    </section>
+      <section class="carte" id="carte-en-cours">
+        <div class="entete">
+          <h2>Sons en cours</h2>
+          <button id="b-stop-tout">Tout couper</button>
+        </div>
+        <ul id="liste-en-cours" class="defilant"></ul>
+        <p class="aide" id="rien-en-cours">Aucun son en cours.</p>
+      </section>
+    </div>
   </main>
 
-  <aside id="en-cours" aria-label="Sons en cours">
+  <dialog id="tiroir">
     <div class="entete">
-      <h2>Sons en cours</h2>
-      <button id="b-stop-tout">Tout couper</button>
+      <h2>Réglages et journal</h2>
+      <button id="b-fermer-tiroir">Fermer</button>
     </div>
-    <ul id="liste-en-cours"></ul>
-    <p class="aide" id="rien-en-cours">Aucun son en cours.</p>
-  </aside>
+    <div class="tiroir-corps">
+      <section>
+        <div class="grille">
+          <label>Durée au départ (h:min) <input type="time" data-reglage="dureeDepart"></label>
+          <label>Minutes par pénalité <input type="number" min="1" max="120" data-reglage="minutesPenalite"></label>
+          <label>Annonce toutes les (min) <input type="number" min="1" max="600" data-reglage="minutesAnnonce"></label>
+          <label class="case"><input type="checkbox" data-reglage="fondAuDemarrage"> Lancer la bande continue au démarrage</label>
+        </div>
+        <label>Phrase de l'annonce ({temps} = temps restant) <input type="text" data-reglage="texteAnnonce"></label>
+        <label>Son joué juste avant l'annonce <select data-reglage="sonAvantAnnonce"></select></label>
+        <label>Voix des annonces <select data-reglage="voix"></select></label>
+        <p class="aide">Les voix « Online (Natural) » d'Edge sont les plus naturelles (connexion Internet nécessaire).</p>
+        <div class="grille">
+          <label>Voix grave ↔ aiguë <input type="range" min="0" max="2" step="0.1" data-reglage="hauteurVoix"></label>
+          <label>Vitesse de la voix <input type="range" min="0.5" max="1.5" step="0.05" data-reglage="vitesseVoix"></label>
+        </div>
+        <label>Texte affiché à l'écran pour un indice <input type="text" data-reglage="texteIndice"></label>
+        <label>Micro utilisé <select id="s-micro"><option value="">Activez d'abord le micro</option></select></label>
+        <button id="b-reinitialiser" class="discret">Réinitialiser la partie (durée de départ, sans pénalités)</button>
+      </section>
+      <section>
+        <h2>Journal</h2>
+        <ol id="journal"></ol>
+      </section>
+    </div>
+  </dialog>
 
   <script src="commun.js"></script>
   <script src="sons/catalogue.js"></script>
