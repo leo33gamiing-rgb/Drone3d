@@ -161,7 +161,7 @@ function afficherEnCours() {
     lignes.push({ cle: 'voix', nom: 'Annonce vocale', detail: 'voix', arreter: () => speechSynthesis.cancel() });
   }
   if (Micro.enDirect()) {
-    lignes.push({ cle: 'micro', nom: 'Micro en direct', detail: Micro.effets[Micro.effet()]?.nom ?? '', arreter: () => parler(false) });
+    lignes.push({ cle: 'micro', nom: 'Micro en direct', detail: Micro.effets[Micro.effet()]?.nom ?? '', arreter: () => parlerMicro(false) });
   }
   if (lectureActive) lignes.push({ cle: `lecture${lecture}`, nom: 'Lecture enchaînée', detail: 'récit', arreter: arreterLecture });
   for (const s of Sons.sonsEnCours()) {
@@ -419,7 +419,7 @@ function arreterLecture() {
 }
 
 function toutCouper() {
-  parler(false);
+  parlerMicro(false);
   lecture++;
   lectureActive = false;
   Sons.toutCouper();
@@ -436,7 +436,7 @@ function ouvrirEcran() {
 
 const microVerrouille = () => $('#i-micro-verrou').checked;
 
-function parler(oui) {
+function parlerMicro(oui) {
   if (!Micro.pret() || oui === Micro.enDirect()) return;
   Micro.parler(oui);
   Sons.attenuer(oui); // le fond sonore baisse pendant qu'on parle
@@ -494,20 +494,20 @@ function brancherMicro() {
     reglages.micro = evenement.target.value;
     sauver();
     const etaitEnDirect = Micro.enDirect();
-    parler(false);
+    parlerMicro(false);
     await Micro.activer(reglages.micro).catch(erreur => alert(`Micro indisponible : ${erreur?.message ?? erreur}`));
-    if (etaitEnDirect) parler(true);
+    if (etaitEnDirect) parlerMicro(true);
   };
-  $('#i-micro-verrou').onchange = () => parler(false);
+  $('#i-micro-verrou').onchange = () => parlerMicro(false);
 
   // Bouton : maintenu = en direct, relâché = coupé (ou un clic allume / un clic coupe si verrouillé).
   const b = $('#b-parler');
   b.onpointerdown = evenement => {
     b.setPointerCapture(evenement.pointerId);
-    parler(microVerrouille() ? !Micro.enDirect() : true);
+    parlerMicro(microVerrouille() ? !Micro.enDirect() : true);
   };
   b.onpointerup = b.onpointercancel = () => {
-    if (!microVerrouille()) parler(false);
+    if (!microVerrouille()) parlerMicro(false);
   };
 
   // Barre Espace maintenue = parler (sauf pendant la saisie d'un texte).
@@ -515,12 +515,12 @@ function brancherMicro() {
   document.addEventListener('keydown', evenement => {
     if (evenement.code !== 'Space' || !Micro.pret() || saisie(evenement.target)) return;
     evenement.preventDefault();
-    if (!evenement.repeat) parler(microVerrouille() ? !Micro.enDirect() : true);
+    if (!evenement.repeat) parlerMicro(microVerrouille() ? !Micro.enDirect() : true);
   });
   document.addEventListener('keyup', evenement => {
     if (evenement.code !== 'Space' || !Micro.pret() || saisie(evenement.target)) return;
     evenement.preventDefault();
-    if (!microVerrouille()) parler(false);
+    if (!microVerrouille()) parlerMicro(false);
   });
 }
 
