@@ -5,9 +5,9 @@
   --muted: #6b7586;
   --line: #e2e6ec;
   --panel: #f3f5f8;
-  --accent: #e8590c;
-  --accent-ink: #c2410c;
-  --accent-soft: #fde4d3;
+  --accent: #ff5210;
+  --accent-ink: #d4420a;
+  --accent-soft: #ffe0d2;
   --track: #eceff3;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,10 +31,11 @@ i { font-style: normal; color: var(--muted); }
 /* ---------- en-tête */
 .top { display: flex; justify-content: space-between; align-items: center;
   padding-bottom: 3mm; border-bottom: 0.3mm solid var(--ink); }
-.brand { font-family: "Inter Display"; font-weight: 800; font-size: 9.5pt; letter-spacing: 0.16em;
-  display: flex; align-items: center; gap: 2mm; }
-.brand .mark { width: 3.2mm; height: 3.2mm; border-radius: 50%; background: var(--accent);
-  box-shadow: inset 0 0 0 0.9mm #fff, 0 0 0 0.35mm var(--accent); }
+.brand { display: flex; flex-direction: column; align-items: flex-start; gap: 1mm; }
+.brand .logo { height: 4.2mm; width: auto; display: block; }
+.brand .tagline { font-size: 6.6pt; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-2); padding-left: 0.3mm; }
+.brand-cover .logo { height: 7mm; }
+.brand-cover .tagline { font-size: 7.4pt; margin-top: 0.4mm; }
 .top-r { font-size: 7.5pt; color: var(--muted); letter-spacing: 0.02em; display: flex; gap: 4mm; align-items: center; }
 .top-r .pg { color: var(--ink); font-weight: 600; }
 
@@ -123,7 +124,7 @@ h3 { font-size: 8.2pt; font-weight: 700; text-transform: uppercase; letter-spaci
 .foot .src { margin-top: 0.8mm; }
 
 /* ---------- page de garde */
-.cover .top-cover { border-bottom-color: var(--line); }
+.cover .top-cover { border-bottom-color: var(--line); align-items: flex-end; padding-bottom: 4mm; }
 .cover .c-title { margin-top: 22mm; }
 .cover .eyebrow { font-size: 9pt; }
 .cover h1 { font-size: 64pt; line-height: 0.96; letter-spacing: -0.03em; margin-top: 3mm; }
@@ -186,9 +187,20 @@ h3 { font-size: 8.2pt; font-weight: 700; text-transform: uppercase; letter-spaci
 
 /* ---------- dos */
 .back { justify-content: space-between; }
-.bk-body { margin-top: 110mm; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.brand-big { font-size: 15pt; letter-spacing: 0.2em; gap: 3mm; }
-.brand-big .mark { width: 5mm; height: 5mm; box-shadow: inset 0 0 0 1.4mm #fff, 0 0 0 0.5mm var(--accent); }
+.bk-body { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.brand-big { align-items: center; }
+.brand-big .logo { height: 11mm; }
+.brand-big .tagline { font-size: 9pt; letter-spacing: 0.4em; margin-top: 1mm; }
+.bk-body { margin-top: 70mm; }
+.bk-contact { display: grid; grid-template-columns: 1fr 1fr 30mm 30mm; gap: 8mm; align-items: start;
+  margin-top: 34mm; padding-top: 6mm; border-top: 0.3mm solid var(--ink); }
+.bk-col h4 { font-size: 7.6pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 2mm; }
+.bk-col p { font-size: 9pt; line-height: 1.5; color: var(--ink); }
+.bk-col p + p { margin-top: 2.2mm; }
+.bk-col .bk-muted { font-size: 7.6pt; color: var(--muted); }
+.bk-qr { display: flex; flex-direction: column; align-items: center; gap: 1.6mm; text-align: center; }
+.bk-qr img { width: 24mm; height: 24mm; display: block; }
+.bk-qr span { font-size: 7pt; color: var(--ink-2); line-height: 1.3; }
 .bk-t { margin-top: 5mm; font-size: 10pt; color: var(--ink-2); }
 .bk-e { margin-top: 1mm; font-size: 8pt; color: var(--muted); }
 .bk-foot { font-size: 6.8pt; line-height: 1.5; color: var(--muted); text-align: center; max-width: 150mm; margin: 0 auto; }

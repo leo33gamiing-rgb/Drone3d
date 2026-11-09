@@ -5,7 +5,8 @@ import math, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 NB = " "   # espace insécable
 NN = " "   # espace fine insécable
-BRAND = "Insite Rental"
+BRAND = "DRONEINSITE"
+TAGLINE = "Aerial Solutions"
 EDITION = "Édition novembre 2026"
 TOTAL = 8
 SAFETY = 0.15   # marge de sécurité appliquée à l'autonomie constructeur
@@ -157,7 +158,7 @@ def icon(name, cls="ico"):
 # ---------------------------------------------------------------- blocs communs
 def header(page):
     return f'''<header class="top">
-  <div class="brand"><span class="mark"></span>{BRAND.upper()}</div>
+  <div class="brand"><img class="logo" src="img/logo_droneinsite.png" alt="DRONEINSITE"></div>
   <div class="top-r">Catalogue de location · drones<span class="pg">{page:02d} / {TOTAL:02d}</span></div>
 </header>'''
 
@@ -270,7 +271,7 @@ def cover():
 <div class="g-cap" style="left:{x:.1f}mm;top:{cap_top}mm;width:{w}mm"><span class="lu-n">{d["name"]}</span><span class="lu-c">{d["short"]}</span></div>'''
     return f'''<section class="page cover">
 <header class="top top-cover">
-  <div class="brand"><span class="mark"></span>{BRAND.upper()}</div>
+  <div class="brand brand-cover"><img class="logo" src="img/logo_droneinsite.png" alt="DRONEINSITE"><span class="tagline">{TAGLINE}</span></div>
   <div class="top-r">{EDITION}</div>
 </header>
 <div class="c-title">
@@ -390,8 +391,9 @@ def savoir():
          "La portée indiquée est un maximum théorique en norme CE, sans obstacle ni interférence. En ville ou en intérieur, elle est "
          "bien plus faible. La réglementation impose de toute façon de garder le drone à vue."),
         ("Réglementation",
-         "Le vol au-dessus d’un rassemblement de personnes est interdit en catégorie Ouverte. Voler près des personnes demande "
-         "un télépilote qualifié et, selon le cas, une autorisation en catégorie Spécifique (DGAC). La classe UE de chaque drone "
+         "Les vols suivent la réglementation européenne (règlement UE 2019/947). Le vol au-dessus d’un rassemblement de personnes "
+         "est interdit en catégorie Ouverte. Voler à proximité des personnes demande un télépilote qualifié et, selon le cas, "
+         "une autorisation de l’autorité nationale de l’aviation civile (catégorie Spécifique). La classe UE de chaque drone "
          "fixe la distance minimale à respecter."),
         ("Météo",
          "Seul le Matrice 400 peut voler sous la pluie (IP55). Aucun vol par vent supérieur aux valeurs indiquées, ni en dehors "
@@ -426,9 +428,23 @@ def savoir():
 def back():
     return f'''<section class="page back">
 <div class="bk-body">
-  <div class="brand brand-big"><span class="mark"></span>{BRAND.upper()}</div>
+  <div class="brand brand-big"><img class="logo" src="img/logo_droneinsite.png" alt="DRONEINSITE"><span class="tagline">{TAGLINE}</span></div>
   <p class="bk-t">Catalogue de location · drones DJI</p>
   <p class="bk-e">{EDITION}</p>
+</div>
+<div class="bk-contact">
+  <div class="bk-col">
+    <h4>DRONEINSITE SRL</h4>
+    <p>4ᵉ Avenue 46, boîte 19<br>4040 Herstal, Belgique</p>
+    <p class="bk-muted">TVA BE 1.037.066.689<br>Exploitant drone déclaré et assuré</p>
+  </div>
+  <div class="bk-col">
+    <h4>Contact</h4>
+    <p>+32 (0)471 86 18 41<br>contact@droneinsite.com<br>www.droneinsite.com</p>
+    <p class="bk-muted">Interventions en Belgique et en France<br>du lundi au samedi</p>
+  </div>
+  <div class="bk-qr"><img src="img/qr_contact.png" alt=""><span>Enregistrer<br>notre contact</span></div>
+  <div class="bk-qr"><img src="img/qr_site.png" alt=""><span>Voir nos<br>réalisations</span></div>
 </div>
 <footer class="bk-foot">
   <p>Document d’information. Les caractéristiques proviennent des fiches techniques officielles DJI (dji.com, enterprise.dji.com)
