@@ -122,44 +122,74 @@ h3 { font-size: 8.2pt; font-weight: 700; text-transform: uppercase; letter-spaci
 .foot b { color: var(--accent-ink); }
 .foot .src { margin-top: 0.8mm; }
 
-/* ---------- couverture */
-.cover .c-title { margin-top: 14mm; }
-.cover h1 { font-size: 46pt; line-height: 0.98; letter-spacing: -0.025em; margin-top: 3mm; }
-.cover .pitch { font-size: 11pt; max-width: 140mm; margin-top: 5mm; }
-.lineup { margin-top: 10mm; background: var(--panel); border-radius: 4mm; flex: none; height: 134mm;
+/* ---------- page de garde */
+.cover .top-cover { border-bottom-color: var(--line); }
+.cover .c-title { margin-top: 22mm; }
+.cover .eyebrow { font-size: 9pt; }
+.cover h1 { font-size: 64pt; line-height: 0.96; letter-spacing: -0.03em; margin-top: 3mm; }
+.cover .pitch { font-size: 13pt; font-weight: 500; color: var(--ink-2); margin-top: 4mm; }
+.lineup { margin-top: 14mm; background: var(--panel); border-radius: 4mm; flex: none; height: 142mm;
   position: relative; overflow: hidden; }
+.c-foot { margin-top: auto; display: flex; justify-content: space-between; padding-top: 3.5mm;
+  border-top: 0.3mm solid var(--ink); font-size: 8pt; color: var(--muted); }
+
+/* ---------- sommaire */
+.toc-cols { display: grid; grid-template-columns: 1fr 84mm; gap: 12mm; margin-top: 12mm; flex: 1; }
+.intro { font-size: 10.4pt; line-height: 1.55; color: var(--ink-2); margin-bottom: 4mm; text-wrap: pretty; }
+.how-h { margin-top: 12mm; }
+.hows { display: flex; flex-direction: column; gap: 5.5mm; margin-top: 4mm; }
+.how { display: flex; gap: 3.2mm; align-items: flex-start; }
+.how-i { width: 10mm; height: 10mm; border-radius: 2.2mm; background: var(--panel); display: flex; align-items: center; justify-content: center; flex: none; }
+.how-i .ico { width: 5.2mm; height: 5.2mm; color: var(--accent); }
+.how b { font-size: 9.6pt; display: block; margin-bottom: 0.6mm; }
+.how p { font-size: 8.6pt; color: var(--ink-2); line-height: 1.42; }
+.som { list-style: none; border-top: 0.3mm solid var(--ink); }
+.som li { display: grid; grid-template-columns: 11mm 26mm 1fr; align-items: center; gap: 3mm; padding: 6mm 0; border-bottom: 1px solid var(--line); }
+.som .s-p { font-family: "Inter Display"; font-weight: 700; font-size: 15pt; color: var(--accent-ink); letter-spacing: -0.02em; }
+.som .s-img { height: 15mm; display: flex; align-items: center; justify-content: center; }
+.som .s-img img { max-width: 100%; max-height: 100%; }
+.som .s-t b { display: block; font-size: 11pt; font-weight: 700; }
+.som .s-t em { display: block; font-style: normal; font-size: 8pt; color: var(--muted); margin-top: 0.6mm; }
+.som .s-plain { padding: 5mm 0; }
+.som .s-plain .s-p { font-size: 12pt; }
 .lineup::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 48mm;
   background: linear-gradient(180deg, rgba(255,255,255,0), rgba(222,227,234,0.7)); }
 .g-img { position: absolute; height: auto; display: block; z-index: 1; filter: drop-shadow(0 2.4mm 2.4mm rgba(16,24,40,0.18)); }
 .g-cap { position: absolute; z-index: 2; text-align: center; display: flex; flex-direction: column; gap: 0.6mm; }
 .lu-n { font-family: "Inter Display"; font-weight: 700; font-size: 12.5pt; }
 .lu-c { font-size: 7.6pt; color: var(--muted); }
-.c-bottom { margin-top: auto; display: grid; grid-template-columns: 1fr 76mm; gap: 10mm; align-items: start; }
-.c-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; border-top: 0.3mm solid var(--ink); padding-top: 4mm; }
-.c-facts b { display: block; font-family: "Inter Display"; font-size: 20pt; font-weight: 700; letter-spacing: -0.015em; }
-.c-facts span { display: block; font-size: 7.4pt; color: var(--muted); margin-top: 1mm; line-height: 1.3; }
-.toc { list-style: none; border-top: 0.3mm solid var(--ink); }
-.toc li { display: grid; grid-template-columns: 9mm 1fr auto; align-items: baseline; padding: 2.1mm 0; border-bottom: 0.2mm solid var(--line); }
-.toc-p { font-weight: 700; color: var(--accent-ink); font-size: 8pt; }
-.toc-n { font-weight: 600; font-size: 9pt; }
-.toc-c { color: var(--muted); font-size: 7.6pt; }
-
 /* ---------- comparatif */
-.ctable { width: 100%; border-collapse: collapse; margin-top: 6mm; table-layout: fixed; }
-.ctable th, .ctable td { text-align: left; padding: 1.55mm 2mm; border-bottom: 1px solid var(--line); vertical-align: baseline; }
-.ctable .c0 { width: 46mm; }
-.ctable thead th { vertical-align: bottom; border-bottom: 0.3mm solid var(--ink); padding-bottom: 2mm; }
-.ctable thead th img { display: block; height: auto; max-width: 100%; margin-bottom: 2.4mm; }
-.ctable thead th span { font-family: "Inter Display"; font-size: 11pt; font-weight: 700; }
-.ctable tbody th { font-weight: 500; color: var(--muted); font-size: 7.9pt; padding-left: 0; }
-.ctable tbody td { font-weight: 600; font-size: 8.4pt; }
-.ctable tbody td i { font-weight: 400; font-size: 7.4pt; }
-.ctable tbody tr:nth-child(-n+3) td { color: var(--ink); }
-.ctable tbody tr:nth-child(-n+3) th { color: var(--ink-2); font-weight: 600; }
-.ctable tbody tr:nth-child(-n+3) { background: #fff7f1; }
-h2.nb { font-size: 8.2pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
-  margin-top: 7mm; padding-bottom: 1.6mm; border-bottom: 0.25mm solid var(--ink); }
-.notes { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm 7mm; margin-top: 3.4mm; }
-.note h4 { font-size: 8.4pt; font-weight: 700; margin-bottom: 0.8mm; display: flex; align-items: center; gap: 1.6mm; }
-.note h4::before { content: ""; width: 1.6mm; height: 1.6mm; border-radius: 50%; background: var(--accent); }
-.note p { font-size: 7.8pt; color: var(--ink-2); line-height: 1.42; text-wrap: pretty; }
+.ctable { width: 100%; border-collapse: collapse; margin-top: 5mm; table-layout: fixed; }
+.ctable th, .ctable td { text-align: left; padding: 1.5mm 2.2mm; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+.ctable .c0 { width: 44mm; }
+.ctable thead th { vertical-align: bottom; border-bottom: 0.3mm solid var(--ink); padding-bottom: 2.4mm; }
+.ctable thead th img { display: block; height: auto; max-width: 100%; margin-bottom: 2.6mm; }
+.ctable thead th span { font-family: "Inter Display"; font-size: 12pt; font-weight: 700; display: block; }
+.ctable thead th em { font-style: normal; font-size: 7.6pt; color: var(--muted); }
+.ctable tbody th { font-weight: 500; color: var(--muted); font-size: 8.2pt; padding-left: 0; }
+.ctable tbody td { font-weight: 600; font-size: 8.5pt; }
+.ctable tbody td i { font-weight: 400; font-size: 7.6pt; }
+.ctable tr.grp th { padding: 3.2mm 0 1.1mm; font-size: 7.4pt; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--accent-ink); border-bottom: 0.25mm solid var(--ink); }
+.ctable tbody tr:first-child th { padding-top: 1mm; }
+
+/* ---------- bon à savoir */
+.notes { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm 10mm; margin-top: 10mm; }
+.note h4 { font-size: 10.4pt; font-weight: 700; margin-bottom: 1.2mm; display: flex; align-items: center; gap: 1.8mm; }
+.note h4::before { content: ""; width: 1.8mm; height: 1.8mm; border-radius: 50%; background: var(--accent); }
+.note p { font-size: 9.2pt; color: var(--ink-2); line-height: 1.5; text-wrap: pretty; }
+.lex-h { margin-top: 13mm; }
+.lex { width: 100%; border-collapse: collapse; }
+.lex th, .lex td { text-align: left; vertical-align: baseline; padding: 2.4mm 0; border-bottom: 1px solid var(--line); font-size: 8.8pt; }
+.lex th { width: 44mm; font-weight: 700; padding-right: 4mm; }
+.lex td { color: var(--ink-2); }
+
+/* ---------- dos */
+.back { justify-content: space-between; }
+.bk-body { margin-top: 110mm; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.brand-big { font-size: 15pt; letter-spacing: 0.2em; gap: 3mm; }
+.brand-big .mark { width: 5mm; height: 5mm; box-shadow: inset 0 0 0 1.4mm #fff, 0 0 0 0.5mm var(--accent); }
+.bk-t { margin-top: 5mm; font-size: 10pt; color: var(--ink-2); }
+.bk-e { margin-top: 1mm; font-size: 8pt; color: var(--muted); }
+.bk-foot { font-size: 6.8pt; line-height: 1.5; color: var(--muted); text-align: center; max-width: 150mm; margin: 0 auto; }
+.bk-foot p + p { margin-top: 1.6mm; }
